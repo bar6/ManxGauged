@@ -1,0 +1,10 @@
+#Script Manx Gauged Start up and associated files
+echo "Starting Manx Gauged..."
+sudo /home/pi/Desktop/Manx\ Gauged/manxgauged.py &
+echo "Starting return ..."
+sudo /home/pi/Desktop/Manx\ Gauged/return.py &
+echo "Starting Audacious"
+sudo audacious &
+echo "Starting Navit..."
+sudo navit
+exit
