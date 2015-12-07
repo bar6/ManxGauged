@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-Raspberry Pi shooter game written by Liam Fraser for RaspberryPiTutorials
-'''
+
 
 '''
 Import pygame for graphics, import sys for exit function, random for random numbers
@@ -71,11 +69,13 @@ gpsbutton = "gpsbutton.png"
 oillighton = "oil_light.png"
 alternatorlighton = "alternator_light.png"
 enginetemperature_lighton = "enginetemperature_light.png"
+lowfuel_lighton = "lowfuel_lighton.png"
 
 turn_left_lighton = "turn_left_light.png" 
 turn_right_lighton = "turn_right_light.png"
 traction_left_lighton = "traction_left_light.png"
 traction_right_lighton = "traction_right_light.png"
+highbeam_lighton = "highbeam_lighton.png"
 #Fuel Gauge
 xfuel1 = "fuel1.png"
 xfuel2 = "fuel2.png"
@@ -155,12 +155,15 @@ airtemperature_arduino = "1"
 enginetemperature_arduino = "1"
 oil_light_arduino = "0"
 alternator_light_arduino = "0"
+highbeam_light_arduino = "0"
+left_turn_light_arduino = "0"
+right_turn_light_arduino = "0"
 #enginetemp_light_arduino = "1"
 #fuel_light_arduino = "1"
 
 
 '''Initalize Serial Port'''
-ser = serial.Serial ("/dev/ttyAMA0", timeout=0.3)
+ser = serial.Serial ("/dev/ttyAMA0", timeout=0.6)
 ser.baudrate = 57600
 
 '''Convert images to a format that pygame understands'''
@@ -234,6 +237,11 @@ traction_left_lighton = pygame.image.load(traction_left_lighton).convert_alpha()
 traction_right_lighton = pygame.image.load(traction_right_lighton).convert_alpha()
 turn_left_lighton = pygame.image.load(turn_left_lighton).convert_alpha()
 turn_right_lighton = pygame.image.load(turn_right_lighton).convert_alpha()
+highbeam_lighton = pygame.image.load(highbeam_lighton).convert_alpha()
+enginetemperature_lighton = pygame.image.load(enginetemperature_lighton).convert_alpha()
+lowfuel_lighton = pygame.image.load(lowfuel_lighton).convert_alpha()
+
+
 '''Used to manage how fast the screen updates'''
 clock = pygame.time.Clock()
 
@@ -304,35 +312,60 @@ def read_from_arduino():
 	global enginetemperature_arduino
 	global oil_light_arduino
 	global alternator_light_arduino
+	global highbeam_light_arduino
+	global left_turn_light_arduino
+	global right_turn_light_arduino
 	#ser.write('\n')
 	ser.write("testing")
 	ser.write('\n')
+	
+	#Left Speed
 	response = ser.readline()
-	#while response != '\n':
 	response2 = response.replace('\n',"")
 	leftspeed_arduino = response2.replace('\r',"")
 	
+	#Right Speed
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	rightspeed_arduino = response2.replace('\r',"")
 	
+	#Air Temperature
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	airtemperature_arduino = response2.replace('\r',"")
 	#print leftspeed_arduino
 	#response = ser.readline()
 	#leftspeed_arduino.rstrip()
+	
+	#Engine Temperature
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	enginetemperature_arduino = response2.replace('\r',"")
 	
+	#Oil Light
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	oil_light_arduino = response2.replace('\r',"")
 	
+	#Alternator Light
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	alternator_light_arduino = response2.replace('\r',"")
+	
+	#HighBeam Light
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	highbeam_light_arduino = response2.replace('\r',"")
+	
+	#Left Turn signal Light
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	left_turn_light_arduino = response2.replace('\r',"")
+	
+	#Right turn signal Light
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	right_turn_light_arduino = response2.replace('\r',"")
 
 
 	return
@@ -437,14 +470,21 @@ while True:
 	#screen.blit(mouse, (mousex,mousey))
 	
 	'''Limit screen updates to 20 frames per second so we dont use 100% cpu time'''
-	clock.tick(60)
+	clock.tick(30)
 	
 	#print leftspeed_arduino
-	
-	if int(leftspeed_arduino) > int(rightspeed_arduino):
-		displayed_speed = leftspeed_arduino
-	else:
-		displayed_speed = rightspeed_arduino
+	try: 
+		int(rightspeed_arduino)
+		try: 
+			int(leftspeed_arduino)
+			if int(leftspeed_arduino) > int(rightspeed_arduino):
+				displayed_speed = leftspeed_arduino
+			else:
+				displayed_speed = rightspeed_arduino
+		except:
+			print "Error Converting right speed"
+	except:
+		print "Error Converting left speed"
 		
 		
 	'''Display Speed'''
@@ -457,53 +497,83 @@ while True:
 		speedtext_rect = speedtext.get_rect(centerx = 400, top = 190) #(right = 440, top = 148)
 		screen.blit(speedtext, speedtext_rect)
 	else:
-		speedtext = fontObj.render(str(int(int(displayed_speed)*(1.60934))), 1, (255, 255, 255))
-		speedtext_rect = speedtext.get_rect(right = 440, top = 130) #(right = 440, top = 148)
-		#speedtext_rect.
-		screen.blit(speedtext, speedtext_rect) 
-		speedtext = font_speedunits.render("KM/H", 1, (255, 255, 255))
-		speedtext_rect = speedtext.get_rect(centerx = 400, top = 190) #(right = 440, top = 148)
-		screen.blit(speedtext, speedtext_rect)		
+		try:
+			speedtext = fontObj.render(str(int(int(displayed_speed)*(1.60934))), 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(right = 440, top = 130) #(right = 440, top = 148)
+			#speedtext_rect.
+			screen.blit(speedtext, speedtext_rect) 
+			speedtext = font_speedunits.render("KM/H", 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(centerx = 400, top = 190) #(right = 440, top = 148)
+			screen.blit(speedtext, speedtext_rect)
+		except:
+			print "Error displaying main speed"	
+
 		
 	'''Display Traction Lights and Speed'''
-	if int(leftspeed_arduino) > 9+int(rightspeed_arduino):
-		tractiontext = font_traction.render(leftspeed_arduino, 1, (255, 195, 0))
-		tractiontext_rect = tractiontext.get_rect(right = 317, top = 270) #(right = 440, top = 148)
-		screen.blit(tractiontext, tractiontext_rect) 
-		tractiontext = font_traction.render(rightspeed_arduino, 1, (255, 195, 0))
-		tractiontext_rect = tractiontext.get_rect(right = 510, top = 270) #(right = 440, top = 148)
-		screen.blit(tractiontext, tractiontext_rect) 
-		screen.blit(traction_left_lighton, (0,0))
-	elif int(rightspeed_arduino) > 9+int(leftspeed_arduino):
-		tractiontext = font_traction.render(leftspeed_arduino, 1, (255, 195, 0))
-		tractiontext_rect = tractiontext.get_rect(right = 317, top = 270) #(right = 440, top = 148)
-		screen.blit(tractiontext, tractiontext_rect) 
-		tractiontext = font_traction.render(rightspeed_arduino, 1, (255, 195, 0))
-		tractiontext_rect = tractiontext.get_rect(right = 510, top = 270) #(right = 440, top = 148)
-		screen.blit(tractiontext, tractiontext_rect) 
-		screen.blit(traction_right_lighton, (0,0))
+	try:
+		if int(leftspeed_arduino) > 9+int(rightspeed_arduino):
+			tractiontext = font_traction.render(leftspeed_arduino, 1, (255, 195, 0))
+			tractiontext_rect = tractiontext.get_rect(right = 317, top = 270) #(right = 440, top = 148)
+			screen.blit(tractiontext, tractiontext_rect) 
+			tractiontext = font_traction.render(rightspeed_arduino, 1, (255, 195, 0))
+			tractiontext_rect = tractiontext.get_rect(right = 510, top = 270) #(right = 440, top = 148)
+			screen.blit(tractiontext, tractiontext_rect) 
+			screen.blit(traction_left_lighton, (0,0))
+		elif int(rightspeed_arduino) > 9+int(leftspeed_arduino):
+			tractiontext = font_traction.render(leftspeed_arduino, 1, (255, 195, 0))
+			tractiontext_rect = tractiontext.get_rect(right = 317, top = 270) #(right = 440, top = 148)
+			screen.blit(tractiontext, tractiontext_rect) 
+			tractiontext = font_traction.render(rightspeed_arduino, 1, (255, 195, 0))
+			tractiontext_rect = tractiontext.get_rect(right = 510, top = 270) #(right = 440, top = 148)
+			screen.blit(tractiontext, tractiontext_rect) 
+			screen.blit(traction_right_lighton, (0,0))
+	except:
+		print "Error displaying traction information"
 				
 		
 	'''Display Air Temperature'''
 	if degC == 1:
-		speedtext = font_airtemp.render(airtemperature_arduino + unichr(176)+"c", 1, (255, 255, 255))
-		speedtext_rect = speedtext.get_rect(right = 165, top = 331) #(right = 440, top = 148)
-		#speedtext_rect.
-		screen.blit(speedtext, speedtext_rect) 
-		#screen.blit(speedtext, (400,148))
+		try:
+			speedtext = font_airtemp.render(airtemperature_arduino + unichr(176)+"c", 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(right = 165, top = 331) #(right = 440, top = 148)
+			#speedtext_rect.
+			screen.blit(speedtext, speedtext_rect) 
+			#screen.blit(speedtext, (400,148))
+		except:
+			print "Error displaying air temp celsius"
 	else:
-		speedtext = font_airtemp.render(str(int(airtemperature_arduino)*1.8+32)+unichr(176)+"F", 1, (255, 255, 255))
-		speedtext_rect = speedtext.get_rect(right = 179, top = 331) #(right = 440, top = 148)
-		#speedtext_rect.
-		screen.blit(speedtext, speedtext_rect) 
-		#screen.blit(speedtext, (400,148))
+		try:
+			speedtext = font_airtemp.render(str(int(airtemperature_arduino)*1.8+32)+unichr(176)+"F", 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(right = 179, top = 331) #(right = 440, top = 148)
+			#speedtext_rect.
+			screen.blit(speedtext, speedtext_rect) 
+			#screen.blit(speedtext, (400,148))
+		except:
+			print "Error Converting air temp to Farenheit"
 	
-	'''Display idiot lights/trun signals if needed'''
+	'''Display idiot lights/turn signals if needed'''
 	if oil_light_arduino == "1":
 		screen.blit(oillighton, (0,0))
 		
 	if alternator_light_arduino == "1":
 		screen.blit(alternatorlighton, (0,0))
+		
+	if highbeam_light_arduino == "1":
+		screen.blit(highbeam_lighton, (0,0))
+		
+	if left_turn_light_arduino == "1":
+		screen.blit(turn_left_lighton, (0,0))
+		
+	if right_turn_light_arduino == "1":
+		screen.blit(turn_right_lighton, (0,0))
+		
+	'''Display Time'''
+	speedtext = font_airtemp.render(time.strftime("%I:%M"), 1, (255, 255, 255))
+	speedtext_rect = speedtext.get_rect(right = 500, top = 460) #(right = 440, top = 148)
+	#speedtext_rect.
+	screen.blit(speedtext, speedtext_rect) 
+	#screen.blit(speedtext, (400,148))
+	
 	
 	'''Needle rotate'''
 	'''Calcualte needle form speed to make it spin!!! just a test lolz'''
@@ -529,7 +599,7 @@ while True:
 	
 	'''Create Head Light Button'''
 	#screen.blit(headlightsoff, (0,0))
-	print mousex, mousey
+	#print mousex, mousey
 	#leftmousebutton_up(currentmousebutton)
 	
 	if 104 > mousex > 34 and 80 > mousey > 13 and leftmousebutton_up(click[0]): #head lights
@@ -646,6 +716,7 @@ while True:
 	previous_mouse_click = 0
 	if click[0]:
 		previous_mouse_click = 1
+		
 	'''Finish off by update the full display surface to the screen'''
 	'''Update buttons'''
 	if headlightsstate == 1:
@@ -760,6 +831,12 @@ while True:
 	
 	screen.blit(musicbutton, (0,0))	
 	screen.blit(gpsbutton, (0,0))
+	
+	
+	if engine_tempstate >= 14:
+		screen.blit(enginetemperature_lighton, (0,0))
+	if fuelstate <= 2:
+		screen.blit(lowfuel_lighton, (0,0))
 		
 	pygame.display.update()
 	
