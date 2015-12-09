@@ -25,6 +25,12 @@ from wm_ext.appwnd import AppWnd
 #from wmctrl import *
 
 
+'''Dune Buggy Information'''
+dune_buggy_owner = "Bernie"
+number_points_cvjoint_speedsensor = 6
+wheelcircumference = 0.0014379
+
+
 
 
 '''Initialize pygame components'''
@@ -158,6 +164,9 @@ alternator_light_arduino = "0"
 highbeam_light_arduino = "0"
 left_turn_light_arduino = "0"
 right_turn_light_arduino = "0"
+odometer_arduino = "0"
+odometer_error_flag_from_arduino = 1  # 1 = Error, 0 = No error (odometer reading from arduino is correct)
+
 #enginetemp_light_arduino = "1"
 #fuel_light_arduino = "1"
 
@@ -276,6 +285,26 @@ GPIO.setup(24, GPIO.OUT)
 GPIO.setup(25, GPIO.OUT)
 GPIO.setup(12, GPIO.OUT)
 
+'''Text File or Odometer and Tripometer Infroamtion'''
+odometer = 0
+tripometer = 0
+odofile = open("odo.txt", "r+")
+odo_from_file_text_line1 = odofile.readline()
+response = odo_from_file_text_line1.replace('\n',"")
+response2 = response.replace('\r',"")
+response3 = response2.replace("odo:","")
+odometer = int(response3)
+
+odo_from_file_text_line2 = odofile.readline()
+response = odo_from_file_text_line2.replace('\n',"")
+response2 = response.replace('\r',"")
+response3 = response2.replace("trip:","")
+tripometer = int(response3)
+odofile.close()
+
+odometer_update_index_time = 0        
+odometer_update_index_distance = 0
+
 ''' Decalre Functions'''
 def rot_center(image, angle):
     """rotate a Surface, maintaining position."""
@@ -315,6 +344,7 @@ def read_from_arduino():
 	global highbeam_light_arduino
 	global left_turn_light_arduino
 	global right_turn_light_arduino
+	global odometer_arduino
 	#ser.write('\n')
 	ser.write("testing")
 	ser.write('\n')
@@ -366,9 +396,73 @@ def read_from_arduino():
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	right_turn_light_arduino = response2.replace('\r',"")
+	
+	#Odometer
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	odometer_arduino = response2.replace('\r',"")
 
 
 	return
+	
+def init_send_arduino_odometer():
+	global odometer
+	global odometer_error_flag_from_arduino
+	index = 0
+
+	#ser.write('\n')
+	ser.write("odometer")
+	ser.write('\n')
+	ser.write(str(odometer))
+	ser.write('\n')
+	
+	#send odometer value to arduino
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	response3 = response2.replace('\r',"")
+	print response3
+	while response3 != "odoupdated" and index < 30:
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		response3 = response2.replace('\r',"")
+		index = index + 1
+		print response3
+	if index > 29:
+		print "Error: Could not receive any confimation back form arduino regarding odometer transfer"
+	index = 0
+	#check to make sure arduino sends the exact same odometer value back, if it doesthen we know arduino has the correct odometer value 
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	response3 = response2.replace('\r',"")
+	print response3
+	try:
+		while int(response3) != odometer and index < 30:
+			response = ser.readline()
+			response2 = response.replace('\n',"")
+			response3 = response2.replace('\r',"")
+			index = index + 1
+			print response3
+		if index > 29:
+			odometer_error_flag_from_arduino = 1
+			print "Error: Odometer value sent back from Arduino does not match odometer reading from file."
+		else:
+			print "Success: Odometer value read back correcly from arduino!!!!"
+			odometer_error_flag_from_arduino = 0
+	except:
+		print "Error: Odometer value read from arduino is not an int"
+		odometer_error_flag_from_arduino = 1
+		
+	print "Done Init"
+	return
+	
+def update_odometer_trip_txtfile():
+	global odometer_arduino
+	odofile = open("odo.txt", "r+")
+	odofile.write("odo:" + str(odometer_arduino + '\n'))
+	odofile.write("trip:" + str(tripometer) + '\n')
+	odofile.close()
+	return
+
 	
 '''def callback_risingedge(channel):
 	global count_speed
@@ -399,6 +493,9 @@ GPIO.output(lightbarpin, True)
 GPIO.output(hornpin, True)
 
 
+'''Initilize Odometer: Send Odometer to Arduino to continue incrementing'''
+init_send_arduino_odometer() 
+
 while True:
 	
 	'''The code below quits the program if the X button is pressed'''
@@ -414,6 +511,7 @@ while True:
 	event1 = pygame.event.poll()
 	if event.type == KEYDOWN:
 		if event.key == K_ESCAPE:
+			odofile.close()
 			break    
 		elif event.key ==K_f:
 			pygame.display.toggle_fullscreen()
@@ -472,7 +570,14 @@ while True:
 	'''Limit screen updates to 20 frames per second so we dont use 100% cpu time'''
 	clock.tick(30)
 	
-	#print leftspeed_arduino
+	
+	odometer_update_index_time = odometer_update_index_time + 1
+	#Figure out if we need to update odometer text file
+	if odometer_update_index_time > 60:
+		odometer_update_index_time = 0
+		update_odometer_trip_txtfile()
+	
+	#Find faster speed left or right to display as main speed on interface
 	try: 
 		int(rightspeed_arduino)
 		try: 
@@ -550,6 +655,9 @@ while True:
 			#screen.blit(speedtext, (400,148))
 		except:
 			print "Error Converting air temp to Farenheit"
+			
+	'''Display Odometer (depedning on if Km/h or mph is selected.'''
+	print odometer_arduino
 	
 	'''Display idiot lights/turn signals if needed'''
 	if oil_light_arduino == "1":
