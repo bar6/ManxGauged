@@ -82,6 +82,8 @@ turn_right_lighton = "turn_right_light.png"
 traction_left_lighton = "traction_left_light.png"
 traction_right_lighton = "traction_right_light.png"
 highbeam_lighton = "highbeam_lighton.png"
+
+tripometer_texton = "tripometer.png"
 #Fuel Gauge
 xfuel1 = "fuel1.png"
 xfuel2 = "fuel2.png"
@@ -139,6 +141,7 @@ wiperminusstate = 0
 hornstate = 0
 fuelstate = 12
 engine_tempstate = 8
+odo_state = 1 # 1 = display odometer, 0 = display tripometer
 
 '''Flags'''
 kmh = 0  #1 = km/h, 0 = mph
@@ -166,6 +169,10 @@ left_turn_light_arduino = "0"
 right_turn_light_arduino = "0"
 odometer_arduino = "0"
 odometer_error_flag_from_arduino = 1  # 1 = Error, 0 = No error (odometer reading from arduino is correct)
+displayed_odometer_kmh = 0.00
+displayed_odometer_mph = 0.00
+displayed_tripometer_kmh = 0.00
+displayed_tripometer_mph = 0.00
 
 #enginetemp_light_arduino = "1"
 #fuel_light_arduino = "1"
@@ -249,6 +256,7 @@ turn_right_lighton = pygame.image.load(turn_right_lighton).convert_alpha()
 highbeam_lighton = pygame.image.load(highbeam_lighton).convert_alpha()
 enginetemperature_lighton = pygame.image.load(enginetemperature_lighton).convert_alpha()
 lowfuel_lighton = pygame.image.load(lowfuel_lighton).convert_alpha()
+tripometer_texton = pygame.image.load(tripometer_texton).convert_alpha()
 
 
 '''Used to manage how fast the screen updates'''
@@ -457,10 +465,14 @@ def init_send_arduino_odometer():
 	
 def update_odometer_trip_txtfile():
 	global odometer_arduino
-	odofile = open("odo.txt", "r+")
-	odofile.write("odo:" + str(odometer_arduino + '\n'))
-	odofile.write("trip:" + str(tripometer) + '\n')
-	odofile.close()
+	global odometer_error_flag_from_arduino
+	
+	if odometer_error_flag_from_arduino == 0:
+		odofile = open("odo.txt", "r+")
+		odofile.write("odo:" + str(odometer_arduino + '\n'))
+		odofile.write("trip:" + str(tripometer) + '\n')
+		odofile.close()
+		
 	return
 
 	
@@ -577,6 +589,7 @@ while True:
 		odometer_update_index_time = 0
 		update_odometer_trip_txtfile()
 	
+	
 	#Find faster speed left or right to display as main speed on interface
 	try: 
 		int(rightspeed_arduino)
@@ -657,7 +670,57 @@ while True:
 			print "Error Converting air temp to Farenheit"
 			
 	'''Display Odometer (depedning on if Km/h or mph is selected.'''
-	print odometer_arduino
+	try:
+		displayed_odometer_mph = round((float(odometer_arduino)/number_points_cvjoint_speedsensor)*wheelcircumference,1)
+		displayed_odometer_kmh = round((float(odometer_arduino)/number_points_cvjoint_speedsensor)*wheelcircumference*(1.60934),1)
+		
+		displayed_tripometer_mph = round(((float(odometer_arduino)-tripometer)/number_points_cvjoint_speedsensor)*wheelcircumference,1)
+		displayed_tripometer_kmh = round(((float(odometer_arduino)-tripometer)/number_points_cvjoint_speedsensor)*wheelcircumference*(1.60934),1)
+	
+	except:
+		print "Error converting odometer string from arduino to float"
+	if odometer_error_flag_from_arduino == 0:
+		if odo_state == 1:
+			if kmh == 0:
+				#odometer displayed in miles
+				speedtext = font_airtemp.render(str(displayed_odometer_mph), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 680, top = 331) #(right = 440, top = 148)
+				screen.blit(speedtext, speedtext_rect) 
+				speedtext = font_airtemp.render("miles", 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 675, top = 349) #(right = 440, top = 148)
+				screen.blit(speedtext, speedtext_rect) 
+			else:
+				#odometer displayed in km/h
+				speedtext = font_airtemp.render(str(displayed_odometer_kmh), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 680, top = 331) #(right = 440, top = 148)
+				screen.blit(speedtext, speedtext_rect) 
+				speedtext = font_airtemp.render("km", 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 675, top = 349) #(right = 440, top = 148)
+				screen.blit(speedtext, speedtext_rect) 
+		else:
+			if kmh == 0:
+				#tripometer displayed in miles
+				speedtext = font_airtemp.render(str(displayed_tripometer_mph), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 680, top = 331) #(right = 440, top = 148)
+				screen.blit(speedtext, speedtext_rect) 
+				speedtext = font_airtemp.render("miles", 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 675, top = 349) #(right = 440, top = 148)
+				screen.blit(speedtext, speedtext_rect) 
+			else:
+				#tripometer displayed in km/h
+				speedtext = font_airtemp.render(str(displayed_tripometer_kmh), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 680, top = 331) #(right = 440, top = 148)
+				screen.blit(speedtext, speedtext_rect) 
+				speedtext = font_airtemp.render("km", 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 675, top = 349) #(right = 440, top = 148)
+				screen.blit(speedtext, speedtext_rect) 
+	else:
+		speedtext = font_airtemp.render("Odo Error", 1, (255, 255, 255))
+		speedtext_rect = speedtext.get_rect(right = 680, top = 331) #(right = 440, top = 148)
+		screen.blit(speedtext, speedtext_rect) 
+		speedtext = font_airtemp.render("Touch Here", 1, (255, 255, 255))
+		speedtext_rect = speedtext.get_rect(right = 675, top = 349) #(right = 440, top = 148)
+		screen.blit(speedtext, speedtext_rect) 
 	
 	'''Display idiot lights/turn signals if needed'''
 	if oil_light_arduino == "1":
@@ -794,6 +857,26 @@ while True:
 			engine_tempstate = 0
 		else:
 			engine_tempstate = engine_tempstate + 1
+			
+	if  700 > mousex > 600 and 380 > mousey > 320 and leftmousebutton_up(click[0]): # Toggle Odometer and Tripometer
+		if odometer_error_flag_from_arduino == 1:
+			screen.blit(background, (0,0))
+			
+			speedtext = font_airtemp.render("Please Wait", 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(right = 680, top = 331) #(right = 440, top = 148)
+			screen.blit(speedtext, speedtext_rect) 
+			speedtext = font_airtemp.render("Updating Odo", 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(right = 675, top = 349) #(right = 440, top = 148)
+			screen.blit(speedtext, speedtext_rect) 
+			
+			pygame.display.update()
+			init_send_arduino_odometer()
+			
+		else:
+			if odo_state == 1:
+				odo_state = 0
+			else:
+				odo_state = 1
 			
 	'''if 104 > mousex > 34 and 80 > mousey > 13 and click[0] == 0:
 		if previous_mouse_click == 1:
@@ -939,6 +1022,9 @@ while True:
 	
 	screen.blit(musicbutton, (0,0))	
 	screen.blit(gpsbutton, (0,0))
+	
+	if odo_state == 0:
+		screen.blit(tripometer_texton, (0,0))
 	
 	
 	if engine_tempstate >= 14:
