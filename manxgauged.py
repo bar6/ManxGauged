@@ -30,8 +30,7 @@ dune_buggy_owner = "Bernie"
 number_points_cvjoint_speedsensor = 6
 wheelcircumference = 0.0014379
 
-
-
+path_to_folder = "/home/pi/Desktop/ManxGauged/"
 
 '''Initialize pygame components'''
 pygame.init()
@@ -45,6 +44,8 @@ for it's graphics, and other functions
 '''
 os.environ['SDL_VIDEO_WINDOW_POS'] = 'center'
 
+
+
 '''Set the window title'''
 pygame.display.set_caption("manxgauged")
 
@@ -52,72 +53,72 @@ pygame.display.set_caption("manxgauged")
 screen = pygame.display.set_mode((800, 480), 0, 32)
 
 '''Create variables with image names we will use'''
-backgroundfile = "dashbackground.png"
-crosshairsfile = "crosshairsmouse.png"
-pifile = "pi.png"
-needlefile = "needle.png"
-headlightsoff = "headlightsoff.png"
-headlightson = "headlightson.png"
-highbeamon = "highbeamon.png"
-highbeamoff = "highbeamoff.png"
-lightbaron = "lightbaron.png"
-lightbaroff = "lightbaroff.png"
-wiperon = "wiperon.png"
-wiperoff = "wiperoff.png"
-wiperpluson = "wiperpluson.png"
-wiperplusoff = "wiperplusoff.png"
-wiperminuson = "wiperminuson.png"
-wiperminusoff = "wiperminusoff.png"
-hornon = "hornon.png"
-hornoff = "hornoff.png"
-musicbutton = "musicbutton.png"
-gpsbutton = "gpsbutton.png"
-oillighton = "oil_light.png"
-alternatorlighton = "alternator_light.png"
-enginetemperature_lighton = "enginetemperature_light.png"
-lowfuel_lighton = "lowfuel_lighton.png"
+backgroundfile = path_to_folder+"dashbackground.png"
+crosshairsfile = path_to_folder+"crosshairsmouse.png"
+pifile = path_to_folder+"pi.png"
+needlefile = path_to_folder+"needle.png"
+headlightsoff = path_to_folder+"headlightsoff.png"
+headlightson = path_to_folder+"headlightson.png"
+highbeamon = path_to_folder+"highbeamon.png"
+highbeamoff = path_to_folder+"highbeamoff.png"
+lightbaron = path_to_folder+"lightbaron.png"
+lightbaroff = path_to_folder+"lightbaroff.png"
+wiperon = path_to_folder+"wiperon.png"
+wiperoff = path_to_folder+"wiperoff.png"
+wiperpluson = path_to_folder+"wiperpluson.png"
+wiperplusoff = path_to_folder+"wiperplusoff.png"
+wiperminuson = path_to_folder+"wiperminuson.png"
+wiperminusoff = path_to_folder+"wiperminusoff.png"
+hornon = path_to_folder+"hornon.png"
+hornoff = path_to_folder+"hornoff.png"
+musicbutton = path_to_folder+"musicbutton.png"
+gpsbutton = path_to_folder+"gpsbutton.png"
+oillighton = path_to_folder+"oil_light.png"
+alternatorlighton = path_to_folder+"alternator_light.png"
+enginetemperature_lighton = path_to_folder+"enginetemperature_light.png"
+lowfuel_lighton = path_to_folder+"lowfuel_lighton.png"
 
-turn_left_lighton = "turn_left_light.png" 
-turn_right_lighton = "turn_right_light.png"
-traction_left_lighton = "traction_left_light.png"
-traction_right_lighton = "traction_right_light.png"
-highbeam_lighton = "highbeam_lighton.png"
+turn_left_lighton = path_to_folder+"turn_left_light.png" 
+turn_right_lighton = path_to_folder+"turn_right_light.png"
+traction_left_lighton = path_to_folder+"traction_left_light.png"
+traction_right_lighton = path_to_folder+"traction_right_light.png"
+highbeam_lighton = path_to_folder+"highbeam_lighton.png"
 
-tripometer_texton = "tripometer.png"
+tripometer_texton = path_to_folder+"tripometer.png"
 #Fuel Gauge
-xfuel1 = "fuel1.png"
-xfuel2 = "fuel2.png"
-xfuel3 = "fuel3.png"
-xfuel4 = "fuel4.png"
-xfuel5 = "fuel5.png"
-xfuel6 = "fuel6.png"
-xfuel7 = "fuel7.png"
-xfuel8 = "fuel8.png"
-xfuel9 = "fuel9.png"
-xfuel10 = "fuel10.png"
-xfuel11 = "fuel11.png"
-xfuel12 = "fuel12.png"
-xfuel13 = "fuel13.png"
-xfuel14 = "fuel14.png"
-xfuel15 = "fuel15.png"
-xfuel16 = "fuel16.png"
+xfuel1 = path_to_folder+"fuel1.png"
+xfuel2 = path_to_folder+"fuel2.png"
+xfuel3 = path_to_folder+"fuel3.png"
+xfuel4 = path_to_folder+"fuel4.png"
+xfuel5 = path_to_folder+"fuel5.png"
+xfuel6 = path_to_folder+"fuel6.png"
+xfuel7 = path_to_folder+"fuel7.png"
+xfuel8 = path_to_folder+"fuel8.png"
+xfuel9 = path_to_folder+"fuel9.png"
+xfuel10 = path_to_folder+"fuel10.png"
+xfuel11 = path_to_folder+"fuel11.png"
+xfuel12 = path_to_folder+"fuel12.png"
+xfuel13 = path_to_folder+"fuel13.png"
+xfuel14 = path_to_folder+"fuel14.png"
+xfuel15 = path_to_folder+"fuel15.png"
+xfuel16 = path_to_folder+"fuel16.png"
 #Engine Temperature
-xtemp1 = "temp1.png"
-xtemp2 = "temp2.png"
-xtemp3 = "temp3.png"
-xtemp4 = "temp4.png"
-xtemp5 = "temp5.png"
-xtemp6 = "temp6.png"
-xtemp7 = "temp7.png"
-xtemp8 = "temp8.png"
-xtemp9 = "temp9.png"
-xtemp10 = "temp10.png"
-xtemp11 = "temp11.png"
-xtemp12 = "temp12.png"
-xtemp13 = "temp13.png"
-xtemp14 = "temp14.png"
-xtemp15 = "temp15.png"
-xtemp16 = "temp16.png"
+xtemp1 = path_to_folder+"temp1.png"
+xtemp2 = path_to_folder+"temp2.png"
+xtemp3 = path_to_folder+"temp3.png"
+xtemp4 = path_to_folder+"temp4.png"
+xtemp5 = path_to_folder+"temp5.png"
+xtemp6 = path_to_folder+"temp6.png"
+xtemp7 = path_to_folder+"temp7.png"
+xtemp8 = path_to_folder+"temp8.png"
+xtemp9 = path_to_folder+"temp9.png"
+xtemp10 = path_to_folder+"temp10.png"
+xtemp11 = path_to_folder+"temp11.png"
+xtemp12 = path_to_folder+"temp12.png"
+xtemp13 = path_to_folder+"temp13.png"
+xtemp14 = path_to_folder+"temp14.png"
+xtemp15 = path_to_folder+"temp15.png"
+xtemp16 = path_to_folder+"temp16.png"
 
 
 '''Variables'''
@@ -168,22 +169,31 @@ highbeam_light_arduino = "0"
 left_turn_light_arduino = "0"
 right_turn_light_arduino = "0"
 odometer_arduino = "0"
+pi_on_arduino = "1"
 odometer_error_flag_from_arduino = 1  # 1 = Error, 0 = No error (odometer reading from arduino is correct)
 displayed_odometer_kmh = 0.00
 displayed_odometer_mph = 0.00
 displayed_tripometer_kmh = 0.00
 displayed_tripometer_mph = 0.00
+tripometer_index = 0
+pi_on_index = 0
+shutdown_message = "nothing"
 
 #enginetemp_light_arduino = "1"
 #fuel_light_arduino = "1"
+
+
 
 
 '''Initalize Serial Port'''
 ser = serial.Serial ("/dev/ttyAMA0", timeout=0.6)
 ser.baudrate = 57600
 
+
+
 '''Convert images to a format that pygame understands'''
-background = pygame.image.load(backgroundfile).convert()
+background = pygame.image.load(path_to_folder+"dashbackground.png").convert_alpha()
+
 
 '''Convert alpha means we use the transparency in the pictures that support it'''
 mouse = pygame.image.load(crosshairsfile).convert_alpha()
@@ -192,6 +202,7 @@ pi = pygame.image.load(pifile).convert_alpha()
 needle_orig = pygame.image.load(needlefile).convert_alpha()
 needle = needle_orig.copy()
 needle_rect = needle_orig.get_rect(center=(400, 240))
+
 
 #Load pictures for buttons
 headlightson = pygame.image.load(headlightson).convert_alpha()
@@ -273,7 +284,7 @@ piy = 60
 pispeed = 3
 
 '''Display Font'''
-font_path = "./Myriad Pro Regular.ttf"
+font_path = path_to_folder+"Myriad Pro Regular.ttf"
 font_size = 70   #55 is the original font size for the backgroup image
 fontObj = pygame.font.Font(font_path, font_size)
 fontObj.set_bold(True)
@@ -285,9 +296,13 @@ font_speedunits.set_bold(True)
 font_traction = pygame.font.Font(font_path, 21)
 font_traction.set_bold(True)
 
+font_tripreset = pygame.font.Font(font_path, 50)
+font_tripreset.set_bold(True)
+
+
 
 '''Set up GPIO pins'''
-GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+#GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(23, GPIO.OUT)
 GPIO.setup(24, GPIO.OUT)
 GPIO.setup(25, GPIO.OUT)
@@ -296,7 +311,7 @@ GPIO.setup(12, GPIO.OUT)
 '''Text File or Odometer and Tripometer Infroamtion'''
 odometer = 0
 tripometer = 0
-odofile = open("odo.txt", "r+")
+odofile = open(path_to_folder+"odo.txt", "r+")
 odo_from_file_text_line1 = odofile.readline()
 response = odo_from_file_text_line1.replace('\n',"")
 response2 = response.replace('\r',"")
@@ -312,6 +327,8 @@ odofile.close()
 
 odometer_update_index_time = 0        
 odometer_update_index_distance = 0
+
+
 
 ''' Decalre Functions'''
 def rot_center(image, angle):
@@ -353,6 +370,7 @@ def read_from_arduino():
 	global left_turn_light_arduino
 	global right_turn_light_arduino
 	global odometer_arduino
+	global pi_on_arduino
 	#ser.write('\n')
 	ser.write("testing")
 	ser.write('\n')
@@ -409,6 +427,12 @@ def read_from_arduino():
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	odometer_arduino = response2.replace('\r',"")
+	
+	#Pi On
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	pi_on_arduino = response2.replace('\r',"")
+	
 
 
 	return
@@ -428,13 +452,13 @@ def init_send_arduino_odometer():
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	response3 = response2.replace('\r',"")
-	print response3
+	#print response3
 	while response3 != "odoupdated" and index < 30:
 		response = ser.readline()
 		response2 = response.replace('\n',"")
 		response3 = response2.replace('\r',"")
 		index = index + 1
-		print response3
+		#print response3
 	if index > 29:
 		print "Error: Could not receive any confimation back form arduino regarding odometer transfer"
 	index = 0
@@ -442,7 +466,7 @@ def init_send_arduino_odometer():
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	response3 = response2.replace('\r',"")
-	print response3
+	#print response3
 	try:
 		while int(response3) != odometer and index < 30:
 			response = ser.readline()
@@ -468,13 +492,26 @@ def update_odometer_trip_txtfile():
 	global odometer_error_flag_from_arduino
 	
 	if odometer_error_flag_from_arduino == 0:
-		odofile = open("odo.txt", "r+")
+		odofile = open(path_to_folder+"odo.txt", "r+")
 		odofile.write("odo:" + str(odometer_arduino + '\n'))
 		odofile.write("trip:" + str(tripometer) + '\n')
 		odofile.close()
 		
 	return
 
+	
+def confirm_shutdown():
+	global shutdown_message
+	#ser.write('\n')
+	ser.write("shutdown")
+	ser.write('\n')
+	
+	#send odometer value to arduino
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	response3 = response2.replace('\r',"")
+	
+	shutdown_message = response3
 	
 '''def callback_risingedge(channel):
 	global count_speed
@@ -505,8 +542,11 @@ GPIO.output(lightbarpin, True)
 GPIO.output(hornpin, True)
 
 
+
 '''Initilize Odometer: Send Odometer to Arduino to continue incrementing'''
 init_send_arduino_odometer() 
+
+pygame.display.toggle_fullscreen()
 
 while True:
 	
@@ -528,10 +568,15 @@ while True:
 		elif event.key ==K_f:
 			pygame.display.toggle_fullscreen()
 			print "Go full screen"
+		elif event.key ==K_q:
+			print "Shuting Down"
+			os.system('shutdown now -h')
+			
 	
 	
 	'''Receive Variables form Arduino (leftspeed, rightspeed, engine temp, fuel level, add to odo, ambient air temp'''
 	read_from_arduino()
+
 	
 	'''Draw the background image on the screen'''
 	screen.blit(background, (0,0))
@@ -582,12 +627,33 @@ while True:
 	'''Limit screen updates to 20 frames per second so we dont use 100% cpu time'''
 	clock.tick(30)
 	
+	if pi_on_arduino == "0":
+		pi_on_index = pi_on_index +1
+		print pi_on_index
+	else:
+		pi_on_index = 0
+		
+	if pi_on_index > 30:
+		print "Waiting for confimation of shutdown from pi"
+		pi_on_index = 0
+		while(1):
+			confirm_shutdown()
+			if shutdown_message == "confirm":
+				update_odometer_trip_txtfile()
+				print "Shuting down..."
+				os.system('shutdown now -h')
+			elif shutdown_message == "stopsd":
+				break
+			else:
+				print "Error incorrect shutdown confirmation, trying agian..."
+
 	
 	odometer_update_index_time = odometer_update_index_time + 1
 	#Figure out if we need to update odometer text file
-	if odometer_update_index_time > 60:
+	if odometer_update_index_time > 600:
 		odometer_update_index_time = 0
 		update_odometer_trip_txtfile()
+		print "updating Odometer Value in  Txt File"
 	
 	
 	#Find faster speed left or right to display as main speed on interface
@@ -669,7 +735,7 @@ while True:
 		except:
 			print "Error Converting air temp to Farenheit"
 			
-	'''Display Odometer (depedning on if Km/h or mph is selected.'''
+	'''Display Odometer (depending on if Km/h or mph is selected.'''
 	try:
 		displayed_odometer_mph = round((float(odometer_arduino)/number_points_cvjoint_speedsensor)*wheelcircumference,1)
 		displayed_odometer_kmh = round((float(odometer_arduino)/number_points_cvjoint_speedsensor)*wheelcircumference*(1.60934),1)
@@ -858,6 +924,28 @@ while True:
 		else:
 			engine_tempstate = engine_tempstate + 1
 			
+			
+			
+			
+	'''Reset Trip when trip value is held for 3 seconds'''		
+	if  700 > mousex > 600 and 380 > mousey > 320 and (click[0]) and odo_state == 0: # Counter for reset tripometer
+		tripometer_index = tripometer_index + 1
+
+	if 700 > mousex > 600 and 380 > mousey > 320 and tripometer_index > 20 and not(click[0]) and odo_state == 0:
+		tripometer_index = 0
+		odo_state = 1
+		tripometer = int(odometer_arduino)
+		speedtext = font_tripreset.render("Trip Reset", 1, (255, 255, 255))
+		speedtext_rect = speedtext.get_rect(right = 540, top = 4) #(right = 440, top = 148)
+		screen.blit(speedtext, speedtext_rect) 
+
+	if tripometer_index > 20 and odo_state == 0:
+		speedtext = font_tripreset.render("Trip Reset", 1, (255, 255, 255))
+		speedtext_rect = speedtext.get_rect(right = 540, top = 4) #(right = 440, top = 148)
+		screen.blit(speedtext, speedtext_rect) 
+			
+			
+			
 	if  700 > mousex > 600 and 380 > mousey > 320 and leftmousebutton_up(click[0]): # Toggle Odometer and Tripometer
 		if odometer_error_flag_from_arduino == 1:
 			screen.blit(background, (0,0))
@@ -877,6 +965,10 @@ while True:
 				odo_state = 0
 			else:
 				odo_state = 1
+
+
+	
+	
 			
 	'''if 104 > mousex > 34 and 80 > mousey > 13 and click[0] == 0:
 		if previous_mouse_click == 1:
@@ -1033,5 +1125,7 @@ while True:
 		screen.blit(lowfuel_lighton, (0,0))
 		
 	pygame.display.update()
+	'''Add a wait'''
+	#time.sleep(60)
 	
 ser.close()
