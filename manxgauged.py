@@ -325,8 +325,11 @@ response3 = response2.replace("trip:","")
 tripometer = int(response3)
 odofile.close()
 
+odometer_resend_2arduino_index = 0
+odometer_error_out_index = 0
 odometer_update_index_time = 0        
 odometer_update_index_distance = 0
+
 
 
 
@@ -568,6 +571,9 @@ while True:
 		elif event.key ==K_f:
 			pygame.display.toggle_fullscreen()
 			print "Go full screen"
+		elif event.key ==K_g:
+			pygame.display.toggle_fullscreen()
+			print "Go full screen"
 		elif event.key ==K_q:
 			print "Shuting Down"
 			os.system('shutdown now -h')
@@ -626,6 +632,15 @@ while True:
 	
 	'''Limit screen updates to 20 frames per second so we dont use 100% cpu time'''
 	clock.tick(30)
+	
+	if odometer_error_flag_from_arduino == 1 and odometer_error_out_index < 3:
+		if odometer_resend_2arduino_index > 40:
+			odometer_resend_2arduino_index = 0
+			init_send_arduino_odometer()
+			odometer_error_out_index = odometer_error_out_index + 1
+		else:
+			odometer_resend_2arduino_index = odometer_resend_2arduino_index + 1
+		 
 	
 	if pi_on_arduino == "0":
 		pi_on_index = pi_on_index +1
