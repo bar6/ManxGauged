@@ -27,8 +27,25 @@ from wm_ext.appwnd import AppWnd
 
 '''Dune Buggy Information'''
 dune_buggy_owner = "Bernie"
-number_points_cvjoint_speedsensor = 6
+number_points_cvjoint_speedsensor = 16
 wheelcircumference = 0.0014379
+
+'''Sensor Information
+	Fuel Level Form arduino is a raw ADC output from 0 to 1024: 630=empty, 210=full
+	Alternator Light Voltage Levels: compared at 2.5v. 1.4v = alternator light on, 12v-14v=alternator light off
+	Oil Temperature: Resistance chart below and equation. Resistor that I used for the voltage divider is 146.4ohm.
+		Note: Arduino does the resistance claulation so the value received form the arduino is the resistance value of the temperature sensor. Pi will need to use the equation to convert resistance to temperature
+	Temperature Sensor Resistance chart
+		120F	=322.8ohm
+		160F	=135ohm
+		180F	=105.7
+		200F	=76
+		220F	=57ohm
+		240F	=42ohm
+		260F	=31ohm
+		280F	=23ohm
+		300F	=18.6ohm
+		Equation:  Temperature = -63.8*ln("resistance")+479.71'''
 
 path_to_folder = "/home/pi/Desktop/ManxGauged/"
 
@@ -170,6 +187,10 @@ left_turn_light_arduino = "0"
 right_turn_light_arduino = "0"
 odometer_arduino = "0"
 pi_on_arduino = "1"
+fuel_level_adc_arduino = "0" #note: this value from pi is a raw dump of the adc from 0 to 1024 (630=emplty, 210=full) 
+oil_temperature_resistance_arduino = "1" #noto:this is the raw resistance value see above for resistance to temperature equation
+tachometer_arduino = "0"
+
 odometer_error_flag_from_arduino = 1  # 1 = Error, 0 = No error (odometer reading from arduino is correct)
 displayed_odometer_kmh = 0.00
 displayed_odometer_mph = 0.00
@@ -435,6 +456,22 @@ def read_from_arduino():
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	pi_on_arduino = response2.replace('\r',"")
+	
+	#Fuel Level
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	fuel_level_adc_arduino = response2.replace('\r',"")
+	
+	#Oil Temperature
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	oil_temperature_resistance_arduino = response2.replace('\r',"")
+
+	#Tachometer
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	tachometer_arduino = response2.replace('\r',"")
+	
 	
 
 
@@ -846,9 +883,22 @@ while True:
 	#g = float("{0:.7f}".format(time.time()))
 	#print g
 	
+	'''Fuel Level'''
+	'''fuel_level_adc_arduino = "0" #note: this value from pi is a raw dump of the adc from 0 to 1024 (630=emplty, 210=full) '''
+	eqn_m = (0.0-100.0)/(630.0-210.0)
+	eqn_b = 100.0-(eqn_m*210.0)
+	fuel_level = (int(fuel_level_adc_arduino)*eqn_m) + eqn_b
+	fuelstate = int((fuel_level/100)*16)
 
-
+	'''Oil Temperature'''
+	'''Temperature = -63.8*ln("resistance")+479.71'''
 	
+	oil_temperature_resistance_arduino = 105
+	oil_temperature = -63.8*math.log(float(oil_temperature_resistance_arduino),2.718281828459)+479.71
+	print oil_temperature
+	
+	engine_tempstate = int((((oil_temperature-120.0))/180)*16.0)
+	print engine_tempstate
 	'''Create Head Light Button'''
 	#screen.blit(headlightsoff, (0,0))
 	#print mousex, mousey
@@ -927,11 +977,11 @@ while True:
 	if  792 > mousex > 723 and 471 > mousey > 406 and click[0]: # horn
 		hornstate = 1
 		
-	if  718 > mousex > 627 and 244 > mousey > 110 and leftmousebutton_up(click[0]): # Increase Fuel Gauge display
+	'''if  718 > mousex > 627 and 244 > mousey > 110 and leftmousebutton_up(click[0]): # Increase Fuel Gauge display
 		if fuelstate >= 16 :
 			fuelstate = 0
 		else:
-			fuelstate = fuelstate + 1
+			fuelstate = fuelstate + 1'''
 			
 	if  149 > mousex > 75 and 242 > mousey > 104 and leftmousebutton_up(click[0]): # Increase Engine Temperature Gauge display
 		if engine_tempstate >= 16 :
