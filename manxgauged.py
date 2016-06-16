@@ -893,12 +893,15 @@ while True:
 	'''Oil Temperature'''
 	'''Temperature = -63.8*ln("resistance")+479.71'''
 	
-	oil_temperature_resistance_arduino = 105
+	#oil_temperature_resistance_arduino = 105
 	oil_temperature = -63.8*math.log(float(oil_temperature_resistance_arduino),2.718281828459)+479.71
-	print oil_temperature
-	
 	engine_tempstate = int((((oil_temperature-120.0))/180)*16.0)
-	print engine_tempstate
+	speedtext = font_airtemp.render(str(int(oil_temperature)) + unichr(176)+"F", 1, (255, 255, 255))
+	speedtext_rect = speedtext.get_rect(right = 155, top = 270) #(right = 440, top = 148)
+			
+	screen.blit(speedtext, speedtext_rect) 
+	
+	
 	'''Create Head Light Button'''
 	#screen.blit(headlightsoff, (0,0))
 	#print mousex, mousey
@@ -983,11 +986,11 @@ while True:
 		else:
 			fuelstate = fuelstate + 1'''
 			
-	if  149 > mousex > 75 and 242 > mousey > 104 and leftmousebutton_up(click[0]): # Increase Engine Temperature Gauge display
+	'''if  149 > mousex > 75 and 242 > mousey > 104 and leftmousebutton_up(click[0]): # Increase Engine Temperature Gauge display
 		if engine_tempstate >= 16 :
 			engine_tempstate = 0
 		else:
-			engine_tempstate = engine_tempstate + 1
+			engine_tempstate = engine_tempstate + 1'''
 			
 			
 			
