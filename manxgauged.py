@@ -21,7 +21,7 @@ GPIO.setmode(GPIO.BCM)
 
 '''import constants used by pygame such as event type = QUIT'''
 from pygame.locals import * 
-from wm_ext.appwnd import AppWnd
+#from wm_ext.appwnd import AppWnd
 #from wmctrl import *
 
 
@@ -207,7 +207,8 @@ shutdown_message = "nothing"
 
 
 '''Initalize Serial Port'''
-ser = serial.Serial ("/dev/ttyAMA0", timeout=0.6)
+#ser = serial.Serial ("/dev/ttyAMA0", timeout=0.6) #use this line for raspberry pi 2
+ser = serial.Serial ("/dev/ttyS0", timeout=0.6) #use this line for raspberry pi 3
 ser.baudrate = 57600
 
 
@@ -337,13 +338,13 @@ odo_from_file_text_line1 = odofile.readline()
 response = odo_from_file_text_line1.replace('\n',"")
 response2 = response.replace('\r',"")
 response3 = response2.replace("odo:","")
-odometer = int(response3)
+odometer = float(response3)
 
 odo_from_file_text_line2 = odofile.readline()
 response = odo_from_file_text_line2.replace('\n',"")
 response2 = response.replace('\r',"")
 response3 = response2.replace("trip:","")
-tripometer = int(response3)
+tripometer = float(response3)
 odofile.close()
 
 odometer_resend_2arduino_index = 0
@@ -395,6 +396,9 @@ def read_from_arduino():
 	global right_turn_light_arduino
 	global odometer_arduino
 	global pi_on_arduino
+	global fuel_level_adc_arduino
+	global oil_temperature_resistance_arduino
+	global tachometer_arduino
 	#ser.write('\n')
 	ser.write("testing")
 	ser.write('\n')
@@ -427,6 +431,7 @@ def read_from_arduino():
 	response2 = response.replace('\n',"")
 	oil_light_arduino = response2.replace('\r',"")
 	
+	
 	#Alternator Light
 	response = ser.readline()
 	response2 = response.replace('\n',"")
@@ -457,10 +462,13 @@ def read_from_arduino():
 	response2 = response.replace('\n',"")
 	pi_on_arduino = response2.replace('\r',"")
 	
+	
 	#Fuel Level
 	response = ser.readline()
 	response2 = response.replace('\n',"")
 	fuel_level_adc_arduino = response2.replace('\r',"")
+	
+	
 	
 	#Oil Temperature
 	response = ser.readline()
@@ -481,7 +489,7 @@ def init_send_arduino_odometer():
 	global odometer
 	global odometer_error_flag_from_arduino
 	index = 0
-
+	
 	#ser.write('\n')
 	ser.write("odometer")
 	ser.write('\n')
@@ -708,12 +716,26 @@ while True:
 		print "updating Odometer Value in  Txt File"
 	
 	
-	#Find faster speed left or right to display as main speed on interface
+	'''#Find faster speed left or right to display as main speed on interface
 	try: 
 		int(rightspeed_arduino)
 		try: 
 			int(leftspeed_arduino)
 			if int(leftspeed_arduino) > int(rightspeed_arduino):
+				displayed_speed = leftspeed_arduino
+			else:
+				displayed_speed = rightspeed_arduino
+		except:
+			print "Error Converting right speed"
+	except:
+		print "Error Converting left speed"'''
+		
+	#Always display right wheel since its better unless it is <5mph
+	try: 
+		int(rightspeed_arduino)
+		try: 
+			int(leftspeed_arduino)
+			if 2 > int(rightspeed_arduino):
 				displayed_speed = leftspeed_arduino
 			else:
 				displayed_speed = rightspeed_arduino
@@ -868,10 +890,10 @@ while True:
 	'''Calcualte needle form speed to make it spin!!! just a test lolz'''
 	#angle = (float(leftspeed_arduino)/120.0)*(-360.0)
 	#print angle
-	needle = pygame.transform.rotate(needle_orig, angle)
+	'''needle = pygame.transform.rotate(needle_orig, angle)
 	needle_rect = needle.get_rect(center=needle_rect.center)
 	needleangle = needleangle - 1
-	angle = angle - 1
+	angle = angle - 1'''
 	#print needleangle
 	screen.blit(needle, needle_rect)
 	
@@ -885,20 +907,26 @@ while True:
 	
 	'''Fuel Level'''
 	'''fuel_level_adc_arduino = "0" #note: this value from pi is a raw dump of the adc from 0 to 1024 (630=emplty, 210=full) '''
-	eqn_m = (0.0-100.0)/(630.0-210.0)
-	eqn_b = 100.0-(eqn_m*210.0)
-	fuel_level = (int(fuel_level_adc_arduino)*eqn_m) + eqn_b
-	fuelstate = int((fuel_level/100)*16)
-
+	try:
+		eqn_m = (0.0-100.0)/(630.0-165.0)
+		eqn_b = 100.0-(eqn_m*165.0)
+		fuel_level = (float(fuel_level_adc_arduino)*eqn_m) + eqn_b
+		fuelstate = int((fuel_level/100)*16)
+		#print "ardu:"+fuel_level_adc_arduino+"fuel100:"+str(fuel_level)+"m:"+str(eqn_m)+"b:"+str(eqn_b)
+	except:
+		print "error fuel level"
 	'''Oil Temperature'''
 	'''Temperature = -63.8*ln("resistance")+479.71'''
 	
-	#oil_temperature_resistance_arduino = 105
-	oil_temperature = -63.8*math.log(float(oil_temperature_resistance_arduino),2.718281828459)+479.71
-	engine_tempstate = int((((oil_temperature-120.0))/180)*16.0)
-	speedtext = font_airtemp.render(str(int(oil_temperature)) + unichr(176)+"F", 1, (255, 255, 255))
-	speedtext_rect = speedtext.get_rect(right = 155, top = 270) #(right = 440, top = 148)
-			
+	try:
+		#oil_temperature_resistance_arduino = 105
+		oil_temperature = -63.8*math.log(float(oil_temperature_resistance_arduino),2.718281828459)+479.71
+		engine_tempstate = int((((oil_temperature-120.0))/180)*16.0)
+		speedtext = font_airtemp.render(str(int(oil_temperature)) + unichr(176)+"F", 1, (255, 255, 255))
+		speedtext_rect = speedtext.get_rect(right = 155, top = 270) #(right = 440, top = 148)
+	except:
+		print "error temperature level"
+		
 	screen.blit(speedtext, speedtext_rect) 
 	
 	
@@ -907,7 +935,7 @@ while True:
 	#print mousex, mousey
 	#leftmousebutton_up(currentmousebutton)
 	
-	if 104 > mousex > 34 and 80 > mousey > 13 and leftmousebutton_up(click[0]): #head lights
+	'''if 104 > mousex > 34 and 80 > mousey > 13 and leftmousebutton_up(click[0]): #head lights
 		if headlightsstate == 1:
 			headlightsstate = 0
 			highbeamstate = 0
@@ -946,7 +974,7 @@ while True:
 			wiperplusstate = 1
 			wiperminusstate = 0
 		#else:
-			#wiperplusstate = 1
+			#wiperplusstate = 1'''
 			
 	if  87 > mousex > 7 and 471 > mousey > 406 and leftmousebutton_up(click[0]): # lightbar
 		if lightbarstate == 1:
@@ -976,9 +1004,9 @@ while True:
 		print "Switich to Navit"
 		ps = subprocess.Popen(['wmctrl','-a','Navit'], stdout=subprocess.PIPE)
 		
-	hornstate = 0	
+	'''hornstate = 0	
 	if  792 > mousex > 723 and 471 > mousey > 406 and click[0]: # horn
-		hornstate = 1
+		hornstate = 1'''
 		
 	'''if  718 > mousex > 627 and 244 > mousey > 110 and leftmousebutton_up(click[0]): # Increase Fuel Gauge display
 		if fuelstate >= 16 :
@@ -1070,7 +1098,7 @@ while True:
 		
 	'''Finish off by update the full display surface to the screen'''
 	'''Update buttons'''
-	if headlightsstate == 1:
+	'''if headlightsstate == 1:
 		screen.blit(headlightson, (0,0))
 		GPIO.output(headlightpin, False)
 	else:
@@ -1097,7 +1125,7 @@ while True:
 	if wiperminusstate == 1:
 		screen.blit(wiperminuson, (0,0))
 	else:
-		screen.blit(wiperminusoff, (0,0))
+		screen.blit(wiperminusoff, (0,0))'''
 		
 	if lightbarstate == 1:
 		screen.blit(lightbaron, (0,0))
@@ -1106,12 +1134,12 @@ while True:
 		screen.blit(lightbaroff, (0,0))
 		GPIO.output(lightbarpin, True)
 		
-	if hornstate == 1:
+	'''if hornstate == 1:
 		screen.blit(hornon, (0,0))
 		GPIO.output(hornpin, False)
 	else:
 		screen.blit(hornoff, (0,0))
-		GPIO.output(hornpin, True)
+		GPIO.output(hornpin, True)'''
 		
 	if fuelstate == 16:
 		screen.blit(fuel16, (0,0))

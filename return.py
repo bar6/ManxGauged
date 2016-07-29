@@ -35,7 +35,7 @@ $Id: shapedclock.py,v 1.2 2007/10/21 22:36:01 jfp Exp $
 
 import time
 import math
-import pygame
+import pygame 
 #import py
 import subprocess
 import commands
@@ -43,6 +43,7 @@ import commands
 
 from pygame.locals  import *
 from wm_ext.appwnd import AppWnd
+
 #from wmctrl import Window
 
 #screen =pygame.display.set_mode((800, 480), 0, 32)

@@ -3,10 +3,10 @@ echo "Starting Manx Gauged..."
 sudo killall gpsd
 sudo gpsd /dev/ttyUSB0 -F /var/run/gpsd.sock
 sudo /home/pi/Desktop/ManxGauged/manxgauged.py &
-echo "Starting return ..."
-sudo /home/pi/Desktop/ManxGauged/return.py &
-echo "Starting Audacious"
-sudo audacious &
+#echo "Starting return ..."
+#sudo /home/pi/Desktop/ManxGauged/return.py &
+#echo "Starting Audacious"
+#sudo audacious &
 echo "Starting Navit..."
 sudo navit
 exit

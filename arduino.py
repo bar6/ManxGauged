@@ -8,6 +8,7 @@ ser.baudrate = 57600
 number = 1
 data = number
 #ser.write(data)
+ser.close()
 ser.open()
 ser.write('\n')
 ser.write("testing")
