@@ -14,6 +14,9 @@ import subprocess
 import commands
 import serial
 import string
+import gps
+import threading
+from gps_poll import *
 
 #ctypes.CDLL('librt.so', mode=ctypes.RTLD_GLOBAL)
 size=(800,480)
@@ -69,6 +72,14 @@ pygame.display.set_caption("manxgauged")
 '''Initialize a display with width 370 and height 542 with 32 bit colour'''
 screen = pygame.display.set_mode((800, 480), 0, 32)
 
+'''Init GPS treading poller'''
+gpsp = GpsPoller()
+try: 
+	gpsp.start()
+	
+except:
+	print "GPS thread start error"
+	
 '''Create variables with image names we will use'''
 backgroundfile = path_to_folder+"dashbackground.png"
 crosshairsfile = path_to_folder+"crosshairsmouse.png"
@@ -199,12 +210,16 @@ displayed_tripometer_mph = 0.00
 tripometer_index = 0
 pi_on_index = 0
 shutdown_message = "nothing"
+gps_speed_index = 0
+gps_speed_flag = 0
 
 #enginetemp_light_arduino = "1"
 #fuel_light_arduino = "1"
 
-
-
+'''GPS Variables'''
+gps_time_pst = "00:00"
+gps_altitude_feet = "0"
+gps_speed_kmh = "nofix"
 
 '''Initalize Serial Port'''
 #ser = serial.Serial ("/dev/ttyAMA0", timeout=0.6) #use this line for raspberry pi 2
@@ -592,8 +607,9 @@ GPIO.output(hornpin, True)
 
 
 '''Initilize Odometer: Send Odometer to Arduino to continue incrementing'''
-init_send_arduino_odometer() 
+init_send_arduino_odometer()
 
+#Fullscreen toggle, comment back in for car
 pygame.display.toggle_fullscreen()
 
 while True:
@@ -628,7 +644,45 @@ while True:
 	'''Receive Variables form Arduino (leftspeed, rightspeed, engine temp, fuel level, add to odo, ambient air temp'''
 	read_from_arduino()
 
+	'''Get GPS Data from Thread'''
 	
+	try:
+		gps_report = gpsp.get_current_value()
+		#print gps_report['lat']
+		#print gps_report['lon']   
+		#print "Speed:" + str(int(gps_report['speed']))
+		#print "Climb:" + str(int(gps_report['climb']))
+		#print "Alt:" + str(int(gps_report['alt']))
+		#print "Time:" + str(gps_report['time'])
+		gps_speed_kmh = int(gps_report['speed'])
+		gps_altitude_feet = gps_report['alt'] * 3.28084 # 1 meter = 3.28084 feet
+		gps_climb_feetpermin = gps_report['climb'] * 3.28084 # 1 meter = 3.28084 feet
+		temp_time = str(gps_report['time'])
+		temp_time2 = temp_time.partition('T')[2].split('.', 1)[0]
+		time0 = temp_time2.split(':', 3)[0]
+		time1 = temp_time2.split(':', 3)[1]
+		time2 = temp_time2.split(':', 3)[2]
+		time_hour = int(time0)+17
+		#fix to 24 hour
+		if time_hour > 23: 
+			time_hour = time_hour - 24
+			
+		#fix to 12 hour
+		if time_hour > 12:
+			time_hour = time_hour - 12
+			pm_or_am = "PM"
+		else:
+			pm_or_am = "AM"
+			
+		pst_time = str(time_hour) + ":" + time1 + pm_or_am
+		gps_time_pst = pst_time
+		gps_speed_flag = 1 #1 means use gps speed
+		gps_speed_index = 0
+	except:
+		#print "Error: Getting GPS Data"
+		if gps_speed_index < 500:
+			gps_speed_index = gps_speed_index + 1
+		
 	'''Draw the background image on the screen'''
 	screen.blit(background, (0,0))
 	
@@ -744,6 +798,14 @@ while True:
 	except:
 		print "Error Converting left speed"
 		
+	
+		
+	#Display GPS speed if there is a gps lock and the speed is faster then 5km/h
+	if gps_speed_index > 100:
+		gps_speed_flag = 0
+	if gps_speed_flag == 1:
+		displayed_speed = str(gps_speed_kmh)
+			
 		
 	'''Display Speed'''
 	if kmh == 0:
@@ -879,12 +941,15 @@ while True:
 		screen.blit(turn_right_lighton, (0,0))
 		
 	'''Display Time'''
-	speedtext = font_airtemp.render(time.strftime("%I:%M"), 1, (255, 255, 255))
+	#speedtext = font_airtemp.render(time.strftime("%I:%M"), 1, (255, 255, 255))
+	speedtext = font_airtemp.render(gps_time_pst, 1, (255, 255, 255))
 	speedtext_rect = speedtext.get_rect(right = 500, top = 460) #(right = 440, top = 148)
-	#speedtext_rect.
 	screen.blit(speedtext, speedtext_rect) 
-	#screen.blit(speedtext, (400,148))
-	
+
+	'''Display Altitude'''
+	speedtext = font_airtemp.render(str(int(gps_altitude_feet))+"ft", 1, (255, 255, 255))
+	speedtext_rect = speedtext.get_rect(right = 360, top = 460) #(right = 440, top = 148)
+	screen.blit(speedtext, speedtext_rect) 	
 	
 	'''Needle rotate'''
 	'''Calcualte needle form speed to make it spin!!! just a test lolz'''
