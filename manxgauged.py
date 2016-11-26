@@ -452,6 +452,7 @@ def read_from_arduino():
 	response2 = response.replace('\n',"")
 	alternator_light_arduino = response2.replace('\r',"")
 	
+	
 	#HighBeam Light
 	response = ser.readline()
 	response2 = response.replace('\n',"")
@@ -951,14 +952,44 @@ while True:
 	speedtext_rect = speedtext.get_rect(right = 360, top = 460) #(right = 440, top = 148)
 	screen.blit(speedtext, speedtext_rect) 	
 	
-	'''Needle rotate'''
+	'''Display Tach (Needle rotate)'''
 	'''Calcualte needle form speed to make it spin!!! just a test lolz'''
-	#angle = (float(leftspeed_arduino)/120.0)*(-360.0)
-	#print angle
-	'''needle = pygame.transform.rotate(needle_orig, angle)
+	'''So the tach circle is not evenly spaced so we need some weird
+	ratios to get the tach to display correcly. '''
+	if tachometer_arduino < 4000:
+		angle = ((float(tachometer_arduino)/9000)*(-360.0))*0.87
+	else:
+		angle = 0 # this is so if the tach gets higher then 9000 it will just stay at 0
+		if 3999 < tachometer_arduino < 5000:
+			startingangle = -139
+			endingangle = -180
+			anglerange = 41
+			angle = (-anglerange)*((float(tachometer_arduino) - 4000.0)/1000.0)+startingangle
+			#angle = (((float(tachometer_arduino)/9000)*(360.0))*0.886)*(-1) #0.897
+		if 4999 < tachometer_arduino < 6000:
+			startingangle = -180
+			endingangle = -226
+			anglerange = 46
+			angle = (-anglerange)*((float(tachometer_arduino) - 5000.0)/1000.0)+startingangle
+		if 5999 < tachometer_arduino < 7000:
+			startingangle = -226
+			endingangle = -279
+			anglerange = 53
+			angle = (-anglerange)*((float(tachometer_arduino) - 6000.0)/1000.0)+startingangle
+		if 6999 < tachometer_arduino < 8000:
+			startingangle = -279
+			endingangle = -320
+			anglerange = 41
+			angle = (-anglerange)*((float(tachometer_arduino) - 7000.0)/1000.0)+startingangle
+		if 7999 < tachometer_arduino < 9000:
+			startingangle = -320
+			endingangle = -360
+			anglerange = 40
+			angle = (-anglerange)*((float(tachometer_arduino) - 8000.0)/1000.0)+startingangle
+	needle = pygame.transform.rotate(needle_orig, angle)
 	needle_rect = needle.get_rect(center=needle_rect.center)
-	needleangle = needleangle - 1
-	angle = angle - 1'''
+	#needleangle = needleangle - 1
+	angle = angle - 1
 	#print needleangle
 	screen.blit(needle, needle_rect)
 	
