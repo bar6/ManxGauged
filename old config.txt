@@ -1,0 +1,10 @@
+speedunits:kmh
+airtemperatureunits:
+manxgaugedmode:extended
+.
+.
+.
+Notes:
+--speedunits = the units in whihc the user wants speed displayed to them (Example:kmh or mph). Kilometer od Miles per hour
+--airtemperatureunits = celsious or farenheit
+--manxguagedmode = simple or externder (simple = just manxgauged interface, extended = Navit and Music buttons added to interface)
