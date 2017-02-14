@@ -228,6 +228,8 @@ pi_on_arduino = "1"
 fuel_level_adc_arduino = "0" #note: this value from pi is a raw dump of the adc from 0 to 1024 (630=emplty, 210=full) 
 oil_temperature_resistance_arduino = "1" #noto:this is the raw resistance value see above for resistance to temperature equation
 tachometer_arduino = "0"
+com_error_ar_pi = 0
+com_error_ar_pi_count = 0
 
 odometer_error_flag_from_arduino = 1  # 1 = Error, 0 = No error (odometer reading from arduino is correct)
 displayed_odometer_kmh = 0.00
@@ -429,6 +431,7 @@ response = odo_from_file_text_line1.replace('\n',"")
 response2 = response.replace('\r',"")
 response3 = response2.replace("odo:","")
 odometer = float(response3)
+odometer_arduino = odometer
 
 odo_from_file_text_line2 = odofile.readline()
 response = odo_from_file_text_line2.replace('\n',"")
@@ -488,24 +491,38 @@ def read_from_arduino():
 	global fuel_level_adc_arduino
 	global oil_temperature_resistance_arduino
 	global tachometer_arduino
+	global com_error_ar_pi
+	global com_error_ar_pi_count
+	
 	#ser.write('\n')
 	ser.write("testing")
 	ser.write('\n')
 	
+	#"datastart" tag
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	datastart_tag = response2.replace('\r',"")
+	
+	#Check datastart tag
+	if datastart_tag != "datastart":
+		ser.flushInput()
+		com_error_ar_pi_count = com_error_ar_pi_count + 1
+		return
+	
 	#Left Speed
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	leftspeed_arduino = response2.replace('\r',"")
+	leftspeed_arduino_temp = response2.replace('\r',"")
 	
 	#Right Speed
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	rightspeed_arduino = response2.replace('\r',"")
+	rightspeed_arduino_temp = response2.replace('\r',"")
 	
 	#Air Temperature
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	airtemperature_arduino = response2.replace('\r',"")
+	airtemperature_arduino_temp = response2.replace('\r',"")
 	#print leftspeed_arduino
 	#response = ser.readline()
 	#leftspeed_arduino.rstrip()
@@ -513,64 +530,93 @@ def read_from_arduino():
 	#Engine Temperature
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	enginetemperature_arduino = response2.replace('\r',"")
+	enginetemperature_arduino_temp = response2.replace('\r',"")
 	
 	#Oil Light
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	oil_light_arduino = response2.replace('\r',"")
+	oil_light_arduino_temp = response2.replace('\r',"")
 	
 	
 	#Alternator Light
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	alternator_light_arduino = response2.replace('\r',"")
+	alternator_light_arduino_temp = response2.replace('\r',"")
 	
 	
 	#HighBeam Light
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	highbeam_light_arduino = response2.replace('\r',"")
+	highbeam_light_arduino_temp = response2.replace('\r',"")
 	
 	#Left Turn signal Light
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	left_turn_light_arduino = response2.replace('\r',"")
+	left_turn_light_arduino_temp = response2.replace('\r',"")
 	
 	#Right turn signal Light
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	right_turn_light_arduino = response2.replace('\r',"")
+	right_turn_light_arduino_temp = response2.replace('\r',"")
 	
 	#Odometer
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	odometer_arduino = response2.replace('\r',"")
+	odometer_arduino_temp = response2.replace('\r',"")
 	
 	#Pi On
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	pi_on_arduino = response2.replace('\r',"")
+	pi_on_arduino_temp = response2.replace('\r',"")
 	
 	
 	#Fuel Level
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	fuel_level_adc_arduino = response2.replace('\r',"")
+	fuel_level_adc_arduino_temp = response2.replace('\r',"")
 	
 	
 	
 	#Oil Temperature
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	oil_temperature_resistance_arduino = response2.replace('\r',"")
+	oil_temperature_resistance_arduino_temp = response2.replace('\r',"")
 
 	#Tachometer
 	response = ser.readline()
 	response2 = response.replace('\n',"")
-	tachometer_arduino = response2.replace('\r',"")
+	tachometer_arduino_temp = response2.replace('\r',"")
 	
+	#"dataend" tag
+	response = ser.readline()
+	response2 = response.replace('\n',"")
+	dataend_tag = response2.replace('\r',"")
 	
+	#Check datastart tag
+	if dataend_tag != "dataend":
+		ser.flushInput()
+		com_error_ar_pi_count = com_error_ar_pi_count + 1
+		return
+		
+	#If we make it to this part fot eh code update the real variables from the temp veriables.
+	#If we made it here. The data was read from the arduino correctly
+	
+	com_error_ar_pi = 0
+	com_error_ar_pi_count = 0
+	leftspeed_arduino = leftspeed_arduino_temp
+	rightspeed_arduino = rightspeed_arduino_temp
+	airtemperature_arduino = airtemperature_arduino_temp
+	enginetemperature_arduino = enginetemperature_arduino_temp
+	oil_light_arduino = oil_light_arduino_temp
+	alternator_light_arduino = alternator_light_arduino_temp
+	highbeam_light_arduino = highbeam_light_arduino_temp
+	left_turn_light_arduino = left_turn_light_arduino_temp
+	right_turn_light_arduino = right_turn_light_arduino_temp
+	odometer_arduino = odometer_arduino_temp
+	pi_on_arduino = pi_on_arduino_temp
+	fuel_level_adc_arduino = fuel_level_adc_arduino_temp
+	oil_temperature_resistance_arduino = oil_temperature_resistance_arduino_temp
+	tachometer_arduino = tachometer_arduino_temp
 
 
 	return
@@ -847,6 +893,13 @@ while True:
 	
 	'''Receive Variables form Arduino (leftspeed, rightspeed, engine temp, fuel level, add to odo, ambient air temp'''
 	read_from_arduino()
+	
+	'''Check Ardunio Communication error and display message to user if there is an error'''
+	if com_error_ar_pi_count > 5:
+		com_error_ar_pi = 1
+		
+	if com_error_ar_pi == 1:
+		print "AR Com Error"
 
 	'''Get GPS Data from Thread'''
 	
@@ -1017,6 +1070,12 @@ while True:
 		#testing	
 		#displayed_speed = "136"
 		#end testing
+		
+		if com_error_ar_pi == 1:
+		
+			speedtext = font_tripreset.render("Com Error", 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(right = 270, top = 4) #(right = 440, top = 148)
+			screen.blit(speedtext, speedtext_rect) 
 		
 		'''Display Speed'''
 		#Get number of digits ex. 56mph = 2 digits. And update "right" and "top"
