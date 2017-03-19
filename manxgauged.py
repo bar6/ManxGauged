@@ -1078,7 +1078,7 @@ while True:
 			screen.blit(speedtext, speedtext_rect) 
 		
 		'''Display Speed'''
-		#Get number of digits ex. 56mph = 2 digits. And update "right" and "top"
+		#Chnage text 
 		if displayed_speed == "GPS!": #gps no fix
 			speed_text_position_right = 490
 			speed_text_position_top = 130
@@ -1093,6 +1093,7 @@ while True:
 			if speed_length == 3:
 				speed_text_position_right = 470
 				speed_text_position_top = 130
+				
 		if kmh == 0:
 			speedtext = fontObj.render(displayed_speed, 1, (255, 255, 255))
 			speedtext_rect = speedtext.get_rect(right = speed_text_position_right, top = 130) #(right = 450, top = 130)
@@ -1103,10 +1104,15 @@ while True:
 			screen.blit(speedtext, speedtext_rect)
 		else:
 			try:
-				if gps_speed_flag == 0: # There is an issue with GPS FIX
+				'''if gps_speed_flag == 0: # There is an issue with GPS FIX
 					speedtext = fontObj.render(displayed_speed, 1, (255, 255, 255))
 				else:
-					speedtext = fontObj.render(str(int(int(displayed_speed)*(1.60934))), 1, (255, 255, 255))
+					speedtext = fontObj.render(str(int(int(displayed_speed)*(1.60934))), 1, (255, 255, 255))'''
+				
+				
+				speedtext = fontObj.render(str(int(int(displayed_speed)*(1.60934))), 1, (255, 255, 255))
+				
+					
 				speedtext_rect = speedtext.get_rect(right = speed_text_position_right, top = 130) #(right = 440, top = 148)
 				#speedtext_rect.
 				screen.blit(speedtext, speedtext_rect) 
@@ -1274,6 +1280,10 @@ while True:
 		'''Calcualte needle form speed to make it spin!!! just a test lolz'''
 		'''So the tach circle is not evenly spaced so we need some weird
 		ratios to get the tach to display correcly. '''
+		try:
+			tachometer_arduino = int(tachometer_arduino)
+		except:
+			print "Cant change tachometer to int"
 		if tachometer_arduino < 4000:
 			angle = ((float(tachometer_arduino)/9000)*(-360.0))*0.87
 		else:
