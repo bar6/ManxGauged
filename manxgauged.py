@@ -598,7 +598,8 @@ def read_from_arduino():
 		com_error_ar_pi_count = com_error_ar_pi_count + 1
 		return
 		
-	#If we make it to this part fot eh code update the real variables from the temp veriables.
+	
+	#If we make it to this part we need to update the real variables from the temporary veriables.
 	#If we made it here. The data was read from the arduino correctly
 	
 	com_error_ar_pi = 0
@@ -612,11 +613,18 @@ def read_from_arduino():
 	highbeam_light_arduino = highbeam_light_arduino_temp
 	left_turn_light_arduino = left_turn_light_arduino_temp
 	right_turn_light_arduino = right_turn_light_arduino_temp
-	odometer_arduino = odometer_arduino_temp
+	
 	pi_on_arduino = pi_on_arduino_temp
 	fuel_level_adc_arduino = fuel_level_adc_arduino_temp
 	oil_temperature_resistance_arduino = oil_temperature_resistance_arduino_temp
 	tachometer_arduino = tachometer_arduino_temp
+	
+	#check if odometer from arduino is lower then displayed odo. If so, arduino odo is wrong and odo needs to be resynced
+	if odometer_arduino > odometer_arduino_temp:
+		print "Odometer read from arduino is less then displayed odometer. Resyncing..."
+		init_send_arduino_odometer()
+	else:
+		odometer_arduino = odometer_arduino_temp
 
 
 	return
