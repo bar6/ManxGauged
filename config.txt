@@ -1,5 +1,5 @@
 speed_sensor:gpsandcv
-speed_units(kmh=1):0
+speed_units(kmh=1):1
 air_temp_units(c=1):1
 engine_temp_units:f
 elevation_units:feet

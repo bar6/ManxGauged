@@ -16,6 +16,9 @@ import string
 import gps
 import threading
 from gps_poll import *
+from multiprocessing.dummy import Pool
+from functools import partial
+pool = Pool(processes=1)
 
 #ctypes.CDLL('librt.so', mode=ctypes.RTLD_GLOBAL)
 size=(800,480)
@@ -79,6 +82,15 @@ try:
 except:
 	print "GPS thread start error"
 	
+#Fullscreen toggle, comment back in for car
+#pygame.display.toggle_fullscreen()
+	
+''' Display "Loading Screen" '''
+loading_screen = path_to_folder+"manxgaugedboot.png"
+loading_screen = pygame.image.load(loading_screen).convert_alpha()
+screen.blit(loading_screen, (0,0))
+pygame.display.update()
+
 '''Create variables with image names we will use'''
 backgroundfile = path_to_folder+"dashbackground.png"
 crosshairsfile = path_to_folder+"crosshairsmouse.png"
@@ -241,6 +253,8 @@ pi_on_index = 0
 shutdown_message = "nothing" 
 gps_speed_index = 0
 gps_speed_flag = 0
+
+callback_done = 1
 
 #enginetemp_light_arduino = "1"
 #fuel_light_arduino = "1"
@@ -460,11 +474,25 @@ def rot_center(image, angle):
     # or return tuple: (Surface, Rect)
         # return rot_sprite, rot_sprite.get_rect()
         
-''' Declare Thread'''
-'''def callback_fallingedge(channel):
-	print "falling edge detected on 17"
-	if previous_fallingedge == 0:
-		previous_fallingedge = 1'''
+''' Declare multiprocessing functions so Pi can Read from Arduino without slowing the whole program'''
+def async_function(name):
+	read_from_arduino()
+	
+	return
+    
+def callback_function(name, age):
+	
+	
+	#do the loop again to read from arduino
+	new_callback_function = partial(callback_function, age=6)
+	pool.apply_async(
+		async_function,
+		args=["start"],
+		callback=new_callback_function
+	)
+	
+	
+
 	
 def leftmousebutton_up(currentmousebutton):
 	global previous_mouse_click
@@ -832,26 +860,6 @@ def confirm_shutdown():
 	
 	shutdown_message = response3
 	
-'''def callback_risingedge(channel):
-	global count_speed
-	global previous_risingedge
-	global time_start
-	global time_end
-	print "raising edge detected on 17"
-	if previous_risingedge == 0:
-		previous_risingedge = 1
-		count_speed = 0
-		time_start = '%0.7f' % (time.time())
-	else:
-		#print count_speed
-		count_speed = 0
-		previous_risingedge = 0
-		time_end = '%0.7f' % (time.time())
-		print float(time_end) - float(time_start)'''
-	
-'''Start thread in main '''
-#GPIO.add_event_detect(17, GPIO.FALLING, callback=callback_fallingedge)
-#GPIO.add_event_detect(17, GPIO.RISING, callback=callback_risingedge)
 
 #pygame.display.toggle_fullscreen
 #init GPIO pins
@@ -867,8 +875,16 @@ read_configuration_txtfile()
 '''Initilize Odometer: Send Odometer to Arduino to continue incrementing'''
 init_send_arduino_odometer()
 
-#Fullscreen toggle, comment back in for car
-#pygame.display.toggle_fullscreen()
+'''Start the first multiprocessing for reading from arduino'''
+new_callback_function = partial(callback_function, age=6)
+pool.apply_async(
+	async_function,
+	args=["start"],
+	callback=new_callback_function
+)
+
+
+
 
 while True:
 	
@@ -900,7 +916,7 @@ while True:
 	
 	
 	'''Receive Variables form Arduino (leftspeed, rightspeed, engine temp, fuel level, add to odo, ambient air temp'''
-	read_from_arduino()
+	#read_from_arduino() dont need anymore
 	
 	'''Check Ardunio Communication error and display message to user if there is an error'''
 	if com_error_ar_pi_count > 5:
@@ -919,9 +935,10 @@ while True:
 		'''
 	
 		gps_report = gpsp.get_current_value()
-		gps_speed_kmh = int(((float(gps_report['speed'])/1000)*60))
+		#gps_speed_kmh = int(((float(gps_report['speed'])/1000.0)*60.0)) old one.
+		gps_speed_kmh = int(((float(gps_report['speed'])*2.217*1.60934)))
 		gps_altitude_feet = gps_report['alt'] * 3.28084 # 1 meter = 3.28084 feet
-		
+	
 		gps_climb_feetpermin = gps_report['climb']*60 * 3.28084 # 1 meter = 3.28084 feet
 		temp_time = str(gps_report['time'])
 		temp_time2 = temp_time.partition('T')[2].split('.', 1)[0]
@@ -1796,7 +1813,7 @@ while True:
 		speedtext = font_airtemp.render("Tachometer:", 1, (255, 255, 255))
 		speedtext_rect = speedtext.get_rect(right = 220, top = 160) #(right = 440, top = 148)
 		screen.blit(speedtext, speedtext_rect) 
-		speedtext = font_airtemp.render(tachometer_arduino +" rpm", 1, (255, 255, 255))
+		speedtext = font_airtemp.render(str(tachometer_arduino) +" rpm", 1, (255, 255, 255))
 		speedtext_rect = speedtext.get_rect(left = 230, top = 160) #(right = 440, top = 148)
 		screen.blit(speedtext, speedtext_rect) 
 		
@@ -1889,14 +1906,14 @@ while True:
 		speedtext = font_airtemp.render("Altitude:", 1, (255, 255, 255))
 		speedtext_rect = speedtext.get_rect(right = 580, top = 160) #(right = 440, top = 148)
 		screen.blit(speedtext, speedtext_rect) 
-		speedtext = font_airtemp.render(str(gps_altitude_feet) +" ft", 1, (255, 255, 255))
+		speedtext = font_airtemp.render(str(int(gps_altitude_feet)) +" ft", 1, (255, 255, 255))
 		speedtext_rect = speedtext.get_rect(left = 590, top = 160) #(right = 440, top = 148)
 		screen.blit(speedtext, speedtext_rect) 
 		
 		speedtext = font_airtemp.render("Vertical Climb:", 1, (255, 255, 255))
 		speedtext_rect = speedtext.get_rect(right = 580, top = 180) #(right = 440, top = 148)
 		screen.blit(speedtext, speedtext_rect) 
-		speedtext = font_airtemp.render(str(gps_climb_feetpermin) + " ft/min", 1, (255, 255, 255))
+		speedtext = font_airtemp.render(str(int(gps_climb_feetpermin)) + " ft/min", 1, (255, 255, 255))
 		speedtext_rect = speedtext.get_rect(left = 590, top = 180) #(right = 440, top = 148)
 		screen.blit(speedtext, speedtext_rect) 
 		
@@ -1911,7 +1928,7 @@ while True:
 		
 		
 
-	#------------------------------------------------------------------ Display State = Metering Page -------------------------------------- 	
+	#------------------------------------------------------------------ Display State = Error Log -------------------------------------- 	
 	if state == "errorlog":	
 		'''Display Error Log Page Background'''
 		screen.blit(errorlog_page, (0,0))
@@ -1919,6 +1936,10 @@ while True:
 		if  70 > mousex > 0 and 70 > mousey > 0 and leftmousebutton_up(click[0]): # Back to Gauged
 			state = "config_page1"
 	
+		'''Need to add all printed information to an array, then print the array on each line to show the log'''
+		
+	
+	#------------------------------------------------------------------ -------------------------------------- 
 	#print previous_mouse_click
 	previous_mouse_click = 0
 	if click[0]:
