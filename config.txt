@@ -1,9 +1,9 @@
-speed_sensor:gpsandcv
+speed_sensor:cv
 speed_units(kmh=1):1
 air_temp_units(c=1):1
 engine_temp_units:f
 elevation_units:feet
-elevation_climb:on
+elevation_climb:off
 display_traction:on
 clock_units:12h
 config_daylight_savings:off

@@ -93,23 +93,13 @@ pygame.display.update()
 
 '''Create variables with image names we will use'''
 backgroundfile = path_to_folder+"dashbackground.png"
-crosshairsfile = path_to_folder+"crosshairsmouse.png"
-pifile = path_to_folder+"pi.png"
 needlefile = path_to_folder+"needle.png"
-headlightsoff = path_to_folder+"headlightsoff.png"
-headlightson = path_to_folder+"headlightson.png"
-highbeamon = path_to_folder+"highbeamon.png"
-highbeamoff = path_to_folder+"highbeamoff.png"
 lightbaron = path_to_folder+"lightbaron.png"
 lightbaroff = path_to_folder+"lightbaroff.png"
-wiperon = path_to_folder+"wiperon.png"
-wiperoff = path_to_folder+"wiperoff.png"
-wiperpluson = path_to_folder+"wiperpluson.png"
-wiperplusoff = path_to_folder+"wiperplusoff.png"
-wiperminuson = path_to_folder+"wiperminuson.png"
-wiperminusoff = path_to_folder+"wiperminusoff.png"
-hornon = path_to_folder+"hornon.png"
-hornoff = path_to_folder+"hornoff.png"
+
+turn_left_light = path_to_folder+"turn_left_light.png"
+turn_right_light = path_to_folder+"turn_right_light.png"
+
 musicbutton = path_to_folder+"musicbutton.png"
 gpsbutton = path_to_folder+"gpsbutton.png"
 oillighton = path_to_folder+"oil_light.png"
@@ -117,13 +107,15 @@ alternatorlighton = path_to_folder+"alternator_light.png"
 enginetemperature_lighton = path_to_folder+"enginetemperature_light.png"
 lowfuel_lighton = path_to_folder+"lowfuel_lighton.png"
 
-turn_left_lighton = path_to_folder+"turn_left_light.png" 
-turn_right_lighton = path_to_folder+"turn_right_light.png"
-traction_left_lighton = path_to_folder+"traction_left_light.png"
-traction_right_lighton = path_to_folder+"traction_right_light.png"
+
+traction_light = path_to_folder+"traction_light.png"
+
 highbeam_lighton = path_to_folder+"highbeam_lighton.png"
 
 tripometer_texton = path_to_folder+"tripometer.png"
+shutdown_countdown = path_to_folder+"shutdown_countdown.png"
+
+
 #Fuel Gauge
 xfuel1 = path_to_folder+"fuel1.png"
 xfuel2 = path_to_folder+"fuel2.png"
@@ -159,20 +151,16 @@ xtemp14 = path_to_folder+"temp14.png"
 xtemp15 = path_to_folder+"temp15.png"
 xtemp16 = path_to_folder+"temp16.png"
 #Configuration
-air_temp_units_c = path_to_folder+"air_temp_units_c.png"
-air_temp_units_f = path_to_folder+"air_temp_units_f.png"
 clock_12h = path_to_folder+"clock_12h.png"
 clock_24h = path_to_folder+"clock_24h.png"
 config_bg = path_to_folder+"config_bg.png"
+config_bg2 = path_to_folder+"config_bg2.png"
 configgear = path_to_folder+"configgear.png"
-display_traction_on = path_to_folder+"display_traction_on.png"
-display_traction_off = path_to_folder+"display_traction_off.png"
-elevation_climb_on = path_to_folder+"elevation_climb_on.png"
-elevation_climb_off = path_to_folder+"elevation_climb_off.png"
+
+
 elevation_units_feet = path_to_folder+"elevation_units_feet.png"
 elevation_units_meters = path_to_folder+"elevation_units_meters.png"
-engine_temperature_units_c = path_to_folder+"engine_temp_units_c.png"
-engine_temperature_units_f = path_to_folder+"engine_temp_units_f.png"
+
 speed_sensor_cvpickup = path_to_folder+"speed_sensor_cvpickup.png"
 speed_sensor_gps = path_to_folder+"speed_sensor_gps.png"
 speed_sensor_gpsandcv = path_to_folder+"speed_sensor_gpsandcv.png"
@@ -182,10 +170,19 @@ errorlog = path_to_folder+"errorlog.png"
 errorlog_page = path_to_folder+"errorlog_page_bg.png"
 metering = path_to_folder+"metering.png"
 metering_page = path_to_folder+"metering_page_bg.png"
-daylight_savings_on = path_to_folder+"daylight_savings_on.png"
-daylight_savings_off = path_to_folder+"daylight_savings_off.png"
+
 gps_fix_symbol = path_to_folder+"gps_fix_symbol.png"
 gps_nofix_symbol = path_to_folder+"gps_nofix_symbol.png"
+
+degree_c_on = path_to_folder+"degree_c_on.png"
+degree_c_off = path_to_folder+"degree_c_off.png"
+degree_f_on = path_to_folder+"degree_f_on.png"
+degree_f_off = path_to_folder+"degree_f_off.png"
+
+on_on = path_to_folder+"on_on.png"
+on_off = path_to_folder+"on_off.png"
+off_on = path_to_folder+"off_on.png"
+off_off = path_to_folder+"off_off.png"
 
 
 '''Variables'''
@@ -197,6 +194,10 @@ previous_risingedge = 0
 time_start = 0
 time_end = 0
 previous_mouse_click = 0
+shutdown_in_progress_skip_read_arduino = 0
+error_reading_odo_from_file = 0
+boot_time_start = 0
+boot_time_end = 0
 
 
 '''GPIO State Variables'''
@@ -286,38 +287,22 @@ config_daylight_savings = "off"
 ser = serial.Serial ("/dev/ttyS0", timeout=0.6) #use this line for raspberry pi 3
 ser.baudrate = 57600
 
-
-
 '''Convert images to a format that pygame understands'''
 background = pygame.image.load(path_to_folder+"dashbackground.png").convert_alpha()
 
 
 '''Convert alpha means we use the transparency in the pictures that support it'''
-mouse = pygame.image.load(crosshairsfile).convert_alpha()
-pi = pygame.image.load(pifile).convert_alpha()
-
 needle_orig = pygame.image.load(needlefile).convert_alpha()
 needle = needle_orig.copy()
 needle_rect = needle_orig.get_rect(center=(400, 240))
 
-
 #Load pictures for buttons
-headlightson = pygame.image.load(headlightson).convert_alpha()
-headlightsoff = pygame.image.load(headlightsoff).convert_alpha()
-highbeamon = pygame.image.load(highbeamon).convert_alpha()
-highbeamoff = pygame.image.load(highbeamoff).convert_alpha()
 lightbaron = pygame.image.load(lightbaron).convert_alpha()
 lightbaroff = pygame.image.load(lightbaroff).convert_alpha()
-wiperon = pygame.image.load(wiperon).convert_alpha()
-wiperoff = pygame.image.load(wiperoff).convert_alpha()
-wiperpluson = pygame.image.load(wiperpluson).convert_alpha()
-wiperplusoff = pygame.image.load(wiperplusoff).convert_alpha()
-wiperminuson = pygame.image.load(wiperminuson).convert_alpha()
-wiperminusoff = pygame.image.load(wiperminusoff).convert_alpha()
-hornon = pygame.image.load(hornon).convert_alpha()
-hornoff = pygame.image.load(hornoff).convert_alpha()
 musicbutton = pygame.image.load(musicbutton).convert_alpha()
 gpsbutton = pygame.image.load(gpsbutton).convert_alpha()
+shutdown_countdown = pygame.image.load(shutdown_countdown).convert_alpha()
+traction_light = pygame.image.load(traction_light).convert_alpha()
 #Load Pictures for Fuel Gauge 
 fuel1 = pygame.image.load(xfuel1).convert_alpha()
 fuel2 = pygame.image.load(xfuel2).convert_alpha()
@@ -357,30 +342,24 @@ temp16 = pygame.image.load(xtemp16).convert_alpha()
 #load idiot light, turn signal and traction indicator pictures
 oillighton = pygame.image.load(oillighton).convert_alpha()
 alternatorlighton = pygame.image.load(alternatorlighton).convert_alpha()
-traction_left_lighton = pygame.image.load(traction_left_lighton).convert_alpha()
-traction_right_lighton = pygame.image.load(traction_right_lighton).convert_alpha()
-turn_left_lighton = pygame.image.load(turn_left_lighton).convert_alpha()
-turn_right_lighton = pygame.image.load(turn_right_lighton).convert_alpha()
+turn_left_light = pygame.image.load(turn_left_light).convert_alpha()
+turn_right_light = pygame.image.load(turn_right_light).convert_alpha()
+
 highbeam_lighton = pygame.image.load(highbeam_lighton).convert_alpha()
 enginetemperature_lighton = pygame.image.load(enginetemperature_lighton).convert_alpha()
 lowfuel_lighton = pygame.image.load(lowfuel_lighton).convert_alpha()
 tripometer_texton = pygame.image.load(tripometer_texton).convert_alpha()
 
 #load state images
-air_temp_units_c = pygame.image.load(air_temp_units_c).convert_alpha()
-air_temp_units_f = pygame.image.load(air_temp_units_f).convert_alpha()
 clock_12h = pygame.image.load(clock_12h).convert_alpha()
 clock_24h = pygame.image.load(clock_24h).convert_alpha()
 config_bg = pygame.image.load(config_bg).convert_alpha()
+config_bg2 = pygame.image.load(config_bg2).convert_alpha()
 configgear = pygame.image.load(configgear).convert_alpha()
-display_traction_on = pygame.image.load(display_traction_on).convert_alpha()
-display_traction_off = pygame.image.load(display_traction_off).convert_alpha()
-elevation_climb_on = pygame.image.load(elevation_climb_on).convert_alpha()
-elevation_climb_off = pygame.image.load(elevation_climb_off).convert_alpha()
+
 elevation_units_feet = pygame.image.load(elevation_units_feet).convert_alpha()
 elevation_units_meters = pygame.image.load(elevation_units_meters).convert_alpha()
-engine_temperature_units_c = pygame.image.load(engine_temperature_units_c).convert_alpha()
-engine_temperature_units_f = pygame.image.load(engine_temperature_units_f).convert_alpha()
+
 speed_sensor_cvpickup = pygame.image.load(speed_sensor_cvpickup).convert_alpha()
 speed_sensor_gps = pygame.image.load(speed_sensor_gps).convert_alpha()
 speed_sensor_gpsandcv = pygame.image.load(speed_sensor_gpsandcv).convert_alpha()
@@ -390,10 +369,20 @@ errorlog = pygame.image.load(errorlog).convert_alpha()
 errorlog_page = pygame.image.load(errorlog_page).convert_alpha()
 metering = pygame.image.load(metering).convert_alpha()
 metering_page = pygame.image.load(metering_page).convert_alpha()
-daylight_savings_on = pygame.image.load(daylight_savings_on).convert_alpha()
-daylight_savings_off = pygame.image.load(daylight_savings_off).convert_alpha()
+
 gps_fix_symbol = pygame.image.load(gps_fix_symbol).convert_alpha()
 gps_nofix_symbol = pygame.image.load(gps_nofix_symbol).convert_alpha()
+
+degree_c_on = pygame.image.load(degree_c_on).convert_alpha()
+degree_c_off = pygame.image.load(degree_c_off).convert_alpha()
+degree_f_on = pygame.image.load(degree_f_on).convert_alpha()
+degree_f_off = pygame.image.load(degree_f_off).convert_alpha()
+
+on_on = pygame.image.load(on_on).convert_alpha()
+on_off = pygame.image.load(on_off).convert_alpha()
+off_on = pygame.image.load(off_on).convert_alpha()
+off_off = pygame.image.load(off_off).convert_alpha()
+
 
 '''Used to manage how fast the screen updates'''
 clock = pygame.time.Clock()
@@ -401,12 +390,6 @@ clock = pygame.time.Clock()
 '''before we start the main section, hide the mouse cursor'''
 #pygame.mouse.set_visible(False)
 
-'''create variables to hold where the Pi logo is'''
-pix = -50
-piy = 60
-
-'''How many pixels to move the pi image across the screen'''
-pispeed = 3
 
 '''Display Font'''
 font_path = path_to_folder+"Myriad Pro Regular.ttf"
@@ -427,6 +410,9 @@ font_metering_title.set_bold(True)
 font_tripreset = pygame.font.Font(font_path, 50)
 font_tripreset.set_bold(True)
 
+font_shutdown_countdown = pygame.font.Font(font_path, 95)
+font_shutdown_countdown.set_bold(True)
+
 
 
 '''Set up GPIO pins'''
@@ -439,19 +425,27 @@ GPIO.setup(12, GPIO.OUT)
 '''Text File or Odometer and Tripometer Infroamtion'''
 odometer = 0
 tripometer = 0
-odofile = open(path_to_folder+"odo.txt", "r+")
+odofile = open(path_to_folder+"odo.txt", "r")
 odo_from_file_text_line1 = odofile.readline()
 response = odo_from_file_text_line1.replace('\n',"")
 response2 = response.replace('\r',"")
 response3 = response2.replace("odo:","")
-odometer = float(response3)
+try:
+	odometer = int(response3)
+except:
+	print "Error: ODO read from file is not an int"
+	error_reading_odo_from_file = 1
 odometer_arduino = odometer
 
 odo_from_file_text_line2 = odofile.readline()
 response = odo_from_file_text_line2.replace('\n',"")
 response2 = response.replace('\r',"")
 response3 = response2.replace("trip:","")
-tripometer = float(response3)
+try:
+	tripometer = int(response3)
+except:
+	print "Error: Trip read from file is not an int"
+	error_reading_odo_from_file = 1
 odofile.close()
 
 odometer_resend_2arduino_index = 0
@@ -492,7 +486,6 @@ def callback_function(name, age):
 	)
 	
 	
-
 	
 def leftmousebutton_up(currentmousebutton):
 	global previous_mouse_click
@@ -521,139 +514,145 @@ def read_from_arduino():
 	global tachometer_arduino
 	global com_error_ar_pi
 	global com_error_ar_pi_count
+	global shutdown_in_progress_skip_read_arduino
 	
-	#ser.write('\n')
-	ser.write("testing")
-	ser.write('\n')
-	
-	#"datastart" tag
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	datastart_tag = response2.replace('\r',"")
-	
-	#Check datastart tag
-	if datastart_tag != "datastart":
-		ser.flushInput()
-		com_error_ar_pi_count = com_error_ar_pi_count + 1
-		return
-	
-	#Left Speed
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	leftspeed_arduino_temp = response2.replace('\r',"")
-	
-	#Right Speed
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	rightspeed_arduino_temp = response2.replace('\r',"")
-	
-	#Air Temperature
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	airtemperature_arduino_temp = response2.replace('\r',"")
-	#print leftspeed_arduino
-	#response = ser.readline()
-	#leftspeed_arduino.rstrip()
-	
-	#Engine Temperature
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	enginetemperature_arduino_temp = response2.replace('\r',"")
-	
-	#Oil Light
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	oil_light_arduino_temp = response2.replace('\r',"")
-	
-	
-	#Alternator Light
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	alternator_light_arduino_temp = response2.replace('\r',"")
-	
-	
-	#HighBeam Light
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	highbeam_light_arduino_temp = response2.replace('\r',"")
-	
-	#Left Turn signal Light
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	left_turn_light_arduino_temp = response2.replace('\r',"")
-	
-	#Right turn signal Light
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	right_turn_light_arduino_temp = response2.replace('\r',"")
-	
-	#Odometer
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	odometer_arduino_temp = response2.replace('\r',"")
-	
-	#Pi On
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	pi_on_arduino_temp = response2.replace('\r',"")
-	
-	
-	#Fuel Level
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	fuel_level_adc_arduino_temp = response2.replace('\r',"")
-	
-	
-	
-	#Oil Temperature
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	oil_temperature_resistance_arduino_temp = response2.replace('\r',"")
-
-	#Tachometer
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	tachometer_arduino_temp = response2.replace('\r',"")
-	
-	#"dataend" tag
-	response = ser.readline()
-	response2 = response.replace('\n',"")
-	dataend_tag = response2.replace('\r',"")
-	
-	#Check datastart tag
-	if dataend_tag != "dataend":
-		ser.flushInput()
-		com_error_ar_pi_count = com_error_ar_pi_count + 1
-		return
+	if shutdown_in_progress_skip_read_arduino == 0:
+		#ser.write('\n')
+		ser.write("testing")
+		ser.write('\n')
 		
-	
-	#If we make it to this part we need to update the real variables from the temporary veriables.
-	#If we made it here. The data was read from the arduino correctly
-	
-	com_error_ar_pi = 0
-	com_error_ar_pi_count = 0
-	leftspeed_arduino = leftspeed_arduino_temp
-	rightspeed_arduino = rightspeed_arduino_temp
-	airtemperature_arduino = airtemperature_arduino_temp
-	enginetemperature_arduino = enginetemperature_arduino_temp
-	oil_light_arduino = oil_light_arduino_temp
-	alternator_light_arduino = alternator_light_arduino_temp
-	highbeam_light_arduino = highbeam_light_arduino_temp
-	left_turn_light_arduino = left_turn_light_arduino_temp
-	right_turn_light_arduino = right_turn_light_arduino_temp
-	
-	pi_on_arduino = pi_on_arduino_temp
-	fuel_level_adc_arduino = fuel_level_adc_arduino_temp
-	oil_temperature_resistance_arduino = oil_temperature_resistance_arduino_temp
-	tachometer_arduino = tachometer_arduino_temp
-	
-	#check if odometer from arduino is lower then displayed odo. If so, arduino odo is wrong and odo needs to be resynced
-	if odometer_arduino > odometer_arduino_temp:
-		print "Odometer read from arduino is less then displayed odometer. Resyncing..."
-		init_send_arduino_odometer()
-	else:
-		odometer_arduino = odometer_arduino_temp
+		#"datastart" tag
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		datastart_tag = response2.replace('\r',"")
+		
+		#Check datastart tag
+		if datastart_tag != "datastart":
+			ser.flushInput()
+			com_error_ar_pi_count = com_error_ar_pi_count + 1
+			return
+		
+		#Left Speed
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		leftspeed_arduino_temp = response2.replace('\r',"")
+		
+		#Right Speed
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		rightspeed_arduino_temp = response2.replace('\r',"")
+		
+		#Air Temperature
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		airtemperature_arduino_temp = response2.replace('\r',"")
+		#print leftspeed_arduino
+		#response = ser.readline()
+		#leftspeed_arduino.rstrip()
+		
+		#Engine Temperature
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		enginetemperature_arduino_temp = response2.replace('\r',"")
+		
+		#Oil Light
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		oil_light_arduino_temp = response2.replace('\r',"")
+		
+		
+		#Alternator Light
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		alternator_light_arduino_temp = response2.replace('\r',"")
+		
+		
+		#HighBeam Light
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		highbeam_light_arduino_temp = response2.replace('\r',"")
+		
+		#Left Turn signal Light
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		left_turn_light_arduino_temp = response2.replace('\r',"")
+		
+		#Right turn signal Light
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		right_turn_light_arduino_temp = response2.replace('\r',"")
+		
+		#Odometer
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		odometer_arduino_temp = response2.replace('\r',"")
+		
+		#Pi On
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		pi_on_arduino_temp = response2.replace('\r',"")
+		
+		
+		#Fuel Level
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		fuel_level_adc_arduino_temp = response2.replace('\r',"")
+		
+		
+		#Oil Temperature
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		oil_temperature_resistance_arduino_temp = response2.replace('\r',"")
 
+		#Tachometer
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		tachometer_arduino_temp = response2.replace('\r',"")
+		
+		#"dataend" tag
+		response = ser.readline()
+		response2 = response.replace('\n',"")
+		dataend_tag = response2.replace('\r',"")
+		
+		#Check datastart tag
+		if dataend_tag != "dataend":
+			ser.flushInput()
+			com_error_ar_pi_count = com_error_ar_pi_count + 1
+			return
+			
+		
+		#If we make it to this part we need to update the real variables from the temporary veriables.
+		#If we made it here. The data was read from the arduino correctly. Turns out im having anissue somehow
+		com_error_ar_pi = 0
+		com_error_ar_pi_count = 0
+		leftspeed_arduino = leftspeed_arduino_temp
+		rightspeed_arduino = rightspeed_arduino_temp
+		airtemperature_arduino = airtemperature_arduino_temp
+		enginetemperature_arduino = enginetemperature_arduino_temp
+		oil_light_arduino = oil_light_arduino_temp
+		alternator_light_arduino = alternator_light_arduino_temp
+		highbeam_light_arduino = highbeam_light_arduino_temp
+		left_turn_light_arduino = left_turn_light_arduino_temp
+		right_turn_light_arduino = right_turn_light_arduino_temp
+		pi_on_arduino = pi_on_arduino_temp
+		fuel_level_adc_arduino = fuel_level_adc_arduino_temp
+		oil_temperature_resistance_arduino = oil_temperature_resistance_arduino_temp
+		tachometer_arduino = tachometer_arduino_temp
+		#check if odometer from arduino is lower then displayed odo. If so, arduino odo is wrong and odo needs to be resynced
+		# first change odometer_arduino_temp to an int
+		try:
+			odometer_arduino_temp = int(odometer_arduino_temp)
+			if odometer_arduino > odometer_arduino_temp:
+				print "Odometer read from arduino is less then displayed odometer. Resyncing..."
+				init_send_arduino_odometer()
+			else:
+				odometer_arduino = odometer_arduino_temp
+		except:
+			print "Error: ODO read from Arduino was not a int"
+		
+	else:
+		
+		time.sleep(2)
 
 	return
 	
@@ -661,6 +660,8 @@ def init_send_arduino_odometer():
 	global odometer
 	global odometer_error_flag_from_arduino
 	index = 0
+	
+	ser.flushInput()
 	
 	#ser.write('\n')
 	ser.write("odometer")
@@ -709,11 +710,15 @@ def init_send_arduino_odometer():
 	
 def update_odometer_trip_txtfile():
 	global odometer_arduino
+	global tripometer
 	global odometer_error_flag_from_arduino
+	global error_reading_odo_from_file
+	global odofile
+	global path_to_folder
 	
-	if odometer_error_flag_from_arduino == 0:
-		odofile = open(path_to_folder+"odo.txt", "r+")
-		odofile.write("odo:" + str(odometer_arduino + '\n'))
+	if odometer_error_flag_from_arduino == 0 and error_reading_odo_from_file == 0:
+		odofile = open(path_to_folder+"odo.txt", "w+")
+		odofile.write("odo:" + str(odometer_arduino) + '\n')
 		odofile.write("trip:" + str(tripometer) + '\n')
 		odofile.close()
 		
@@ -768,7 +773,7 @@ def read_configuration_txtfile():
 	global dune_buggy_owner
 	
 	try:
-		configfile = open(path_to_folder+"config.txt", "r+")
+		configfile = open(path_to_folder+"config.txt", "r")
 		
 		config_from_file_text_line1 = configfile.readline()             #line 1 -> speed_sensor
 		response = config_from_file_text_line1.replace('\n',"")
@@ -897,11 +902,11 @@ while True:
 						
 	'''Now we have initialized everything, lets start with the main part'''
 	
-	'''CHech for fullscreen toogle, press "F" to toggle fullscreen and Esc to exit'''
+	'''Check for fullscreen toogle, press "F" to toggle fullscreen and Esc to exit'''
 	event1 = pygame.event.poll()
 	if event.type == KEYDOWN:
 		if event.key == K_ESCAPE:
-			odofile.close()
+			
 			break    
 		elif event.key ==K_f:
 			pygame.display.toggle_fullscreen()
@@ -914,10 +919,6 @@ while True:
 			os.system('shutdown now -h')
 			
 	
-	
-	'''Receive Variables form Arduino (leftspeed, rightspeed, engine temp, fuel level, add to odo, ambient air temp'''
-	#read_from_arduino() dont need anymore
-	
 	'''Check Ardunio Communication error and display message to user if there is an error'''
 	if com_error_ar_pi_count > 5:
 		com_error_ar_pi = 1
@@ -929,7 +930,7 @@ while True:
 	
 	try:
 		'''Units for each variable:
-		spped = m/s
+		speed = m/s
 		alt = m
 		climb = m/s 
 		'''
@@ -968,12 +969,6 @@ while True:
 		if gps_speed_index < 500:
 			gps_speed_index = gps_speed_index + 1
 		
-
-	
-	'''Code to move the RaspberryPi logo across the screen'''
-	
-	'''Get the co ordinate for the edges of the screen'''
-	screenboundx, screenboundy = screen.get_size()
 	
 	'''Get the X and Y mouse positions to variables called x and y'''
 	mousex,mousey = pygame.mouse.get_pos()
@@ -997,16 +992,24 @@ while True:
 	else:
 		pi_on_index = 0
 		
-	if pi_on_index > 30:
+	if pi_on_index > 40:
+		
+		shutdown_in_progress_skip_read_arduino = 1
+		#Clear Serial Data first
+		ser.flushInput()
 		print "Waiting for confimation of shutdown from pi"
+		print odometer_arduino
+		print tripometer
+		update_odometer_trip_txtfile()
 		pi_on_index = 0
 		while(1):
 			confirm_shutdown()
 			if shutdown_message == "confirm":
-				update_odometer_trip_txtfile()
+				time.sleep(1)
 				print "Shuting down..."
 				os.system('shutdown now -h')
 			elif shutdown_message == "stopsd":
+				shutdown_in_progress_skip_read_arduino = 0
 				break
 			else:
 				print "Error incorrect shutdown confirmation, trying agian..."
@@ -1071,10 +1074,7 @@ while True:
 		if gps_speed_flag == 1:
 			displayed_speed = str(gps_speed_kmh)
 		
-		
-		
-		
-		
+	
 	if config_speed_sensor_type == "gps":
 		if gps_speed_flag == 1: #If GPS fix
 			displayed_speed = str(gps_speed_kmh)
@@ -1082,22 +1082,14 @@ while True:
 			displayed_speed = "GPS!"
 						
 	#print mousex, mousey
-		
 	
-		
-		
 		
 	#------------------------------------------------------------------ Display State = Gauge-------------------------------------- 
 	if state == "gauge":
 		'''Draw the Manx Gauged Background'''
 		screen.blit(background, (0,0))	
-			
-		#testing	
-		#displayed_speed = "136"
-		#end testing
 		
 		if com_error_ar_pi == 1:
-		
 			speedtext = font_tripreset.render("Com Error", 1, (255, 255, 255))
 			speedtext_rect = speedtext.get_rect(right = 270, top = 4) #(right = 440, top = 148)
 			screen.blit(speedtext, speedtext_rect) 
@@ -1105,48 +1097,55 @@ while True:
 		'''Display Speed'''
 		#Chnage text 
 		if displayed_speed == "GPS!": #gps no fix
-			speed_text_position_right = 490
-			speed_text_position_top = 130
-		else:
-			speed_length = len(str(displayed_speed))
-			if speed_length == 1:
-				speed_text_position_right = 430
-				speed_text_position_top = 130
-			if speed_length == 2:
-				speed_text_position_right = 450
-				speed_text_position_top = 130
-			if speed_length == 3:
-				speed_text_position_right = 470
-				speed_text_position_top = 130
-				
-		if kmh == 0:
-			speedtext = fontObj.render(displayed_speed, 1, (255, 255, 255))
-			speedtext_rect = speedtext.get_rect(right = speed_text_position_right, top = 130) #(right = 450, top = 130)
+			speedtext = fontObj.render(str(displayed_speed_ones), 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(right = 490, top = 130) #(right = 450, top = 130)
 			screen.blit(speedtext, speedtext_rect) 
-			
-			speedtext = font_speedunits.render("MPH", 1, (255, 255, 255))
-			speedtext_rect = speedtext.get_rect(centerx = 400, top = 190) #(right = 400, top = 190)
-			screen.blit(speedtext, speedtext_rect)
 		else:
-			try:
-				'''if gps_speed_flag == 0: # There is an issue with GPS FIX
-					speedtext = fontObj.render(displayed_speed, 1, (255, 255, 255))
-				else:
-					speedtext = fontObj.render(str(int(int(displayed_speed)*(1.60934))), 1, (255, 255, 255))'''
+			if kmh == 0:
+				speedtext = font_speedunits.render("MPH", 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(centerx = 400, top = 190) #(right = 400, top = 190)
+				screen.blit(speedtext, speedtext_rect)
 				
-				
-				speedtext = fontObj.render(str(int(int(displayed_speed)*(1.60934))), 1, (255, 255, 255))
-				
-					
-				speedtext_rect = speedtext.get_rect(right = speed_text_position_right, top = 130) #(right = 440, top = 148)
-				#speedtext_rect.
-				screen.blit(speedtext, speedtext_rect) 
+			else:
 				speedtext = font_speedunits.render("KM/H", 1, (255, 255, 255))
 				speedtext_rect = speedtext.get_rect(centerx = 400, top = 190) #(right = 400, top = 190)
 				screen.blit(speedtext, speedtext_rect)
-			except:
-				print "Error displaying main speed"	
-
+				try:
+					displayed_speed = (int(int(displayed_speed)*(1.60934)))
+				except:
+					print "Error displaying main speed"	
+			
+			displayed_speed_ones = int(displayed_speed)%10
+			displayed_speed_tens = (int(displayed_speed)/10)%10
+			displayed_speed_hundreds = (int(displayed_speed)/100)%10	
+				
+			speed_length = len(str(displayed_speed))
+			if speed_length == 1:
+				speedtext = fontObj.render(str(displayed_speed_ones), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 430, top = 130) #(right = 450, top = 130)
+				screen.blit(speedtext, speedtext_rect) 
+			if speed_length == 2:
+				speedtext = fontObj.render(str(displayed_speed_ones), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 451, top = 130) #(right = 450, top = 130)
+				screen.blit(speedtext, speedtext_rect) 
+				speedtext = fontObj.render(str(displayed_speed_tens), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 409, top = 130) #(right = 450, top = 130)
+				screen.blit(speedtext, speedtext_rect) 
+			if speed_length == 3:
+				speedtext = fontObj.render(str(displayed_speed_ones), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 465, top = 130) #(right = 450, top = 130)
+				screen.blit(speedtext, speedtext_rect) 
+				speedtext = fontObj.render(str(displayed_speed_tens), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 423, top = 130) #(right = 450, top = 130)
+				screen.blit(speedtext, speedtext_rect) 
+				speedtext = fontObj.render(str(displayed_speed_hundreds), 1, (255, 255, 255))
+				speedtext_rect = speedtext.get_rect(right = 388, top = 130) #(right = 450, top = 130)
+				screen.blit(speedtext, speedtext_rect)
+			
+		
+	
+			
+		
 			
 		'''Display Traction Lights and Speed'''
 		if config_display_traction == "on":
@@ -1159,7 +1158,7 @@ while True:
 					tractiontext = font_traction.render(rightspeed_arduino, 1, (255, 195, 0))
 					tractiontext_rect = tractiontext.get_rect(right = 510, top = 270) #(right = 440, top = 148)
 					screen.blit(tractiontext, tractiontext_rect) 
-					screen.blit(traction_left_lighton, (0,0))
+					screen.blit(traction_light, (287,231))
 				elif int(rightspeed_arduino) > 9+int(leftspeed_arduino):
 					tractiontext = font_traction.render(leftspeed_arduino, 1, (255, 195, 0))
 					tractiontext_rect = tractiontext.get_rect(right = 317, top = 270) #(right = 440, top = 148)
@@ -1167,15 +1166,15 @@ while True:
 					tractiontext = font_traction.render(rightspeed_arduino, 1, (255, 195, 0))
 					tractiontext_rect = tractiontext.get_rect(right = 510, top = 270) #(right = 440, top = 148)
 					screen.blit(tractiontext, tractiontext_rect) 
-					screen.blit(traction_right_lighton, (0,0))		
+					screen.blit(traction_light, (480,231))	
 			except:
 				print "Error displaying traction information"
 					
 		'''Display GPS Fix Status Symbol'''
 		if gps_speed_flag == 1:
-			screen.blit(gps_fix_symbol, (0,0))	
+			screen.blit(gps_fix_symbol, (460,195))	
 		else:
-			screen.blit(gps_nofix_symbol, (0,0))	
+			screen.blit(gps_nofix_symbol, (460,195))	
 			
 		'''Display Air Temperature'''
 		if degC == 1:
@@ -1252,22 +1251,23 @@ while True:
 		
 		'''Display idiot lights/turn signals if needed'''
 		if oil_light_arduino == "1":
-			screen.blit(oillighton, (0,0))
+			screen.blit(oillighton, (311,324))
 			
 		if alternator_light_arduino == "1":
-			screen.blit(alternatorlighton, (0,0))
+			screen.blit(alternatorlighton, (445,323)) #done
 			
 		if highbeam_light_arduino == "1":
-			screen.blit(highbeam_lighton, (0,0))
+			screen.blit(highbeam_lighton, (380,323)) #done
 			
 		if left_turn_light_arduino == "1":
-			screen.blit(turn_left_lighton, (0,0))
+			screen.blit(turn_left_light, (270,198))
+			
 			
 		if right_turn_light_arduino == "1":
-			screen.blit(turn_right_lighton, (0,0))
+			screen.blit(turn_right_light, (495,198))
 			
-			
-		screen.blit(configgear, (0,0))
+		
+		screen.blit(configgear, (750,430))
 			
 		'''Display Time'''
 		if config_clock_units == "12h":
@@ -1450,8 +1450,7 @@ while True:
 			ps = subprocess.Popen(['wmctrl','-a','Navit'], stdout=subprocess.PIPE)
 			
 		if  800 > mousex > 720 and 480 > mousey > 410 and leftmousebutton_up(click[0]): # Config Button
-			state = "config_page1"					
-				
+			state = "config_page1"						
 				
 		'''Reset Trip when trip value is held for 3 seconds'''		
 		if  700 > mousex > 600 and 380 > mousey > 320 and (click[0]) and odo_state == 0: # Counter for reset tripometer
@@ -1470,19 +1469,15 @@ while True:
 			speedtext_rect = speedtext.get_rect(right = 540, top = 4) #(right = 440, top = 148)
 			screen.blit(speedtext, speedtext_rect) 
 				
-				
-				
 		if  700 > mousex > 600 and 380 > mousey > 320 and leftmousebutton_up(click[0]): # Toggle Odometer and Tripometer
 			if odometer_error_flag_from_arduino == 1:
 				screen.blit(background, (0,0))
-				
 				speedtext = font_airtemp.render("Please Wait", 1, (255, 255, 255))
 				speedtext_rect = speedtext.get_rect(right = 680, top = 331) #(right = 440, top = 148)
 				screen.blit(speedtext, speedtext_rect) 
 				speedtext = font_airtemp.render("Updating Odo", 1, (255, 255, 255))
 				speedtext_rect = speedtext.get_rect(right = 675, top = 349) #(right = 440, top = 148)
 				screen.blit(speedtext, speedtext_rect) 
-				
 				pygame.display.update()
 				init_send_arduino_odometer()
 				
@@ -1492,9 +1487,6 @@ while True:
 				else:
 					odo_state = 1
 
-
-		
-		
 				
 		'''if 104 > mousex > 34 and 80 > mousey > 13 and click[0] == 0:
 			if previous_mouse_click == 1:
@@ -1550,11 +1542,12 @@ while True:
 		else:
 			screen.blit(wiperminusoff, (0,0))'''
 			
+		
 		if lightbarstate == 1:
-			screen.blit(lightbaron, (0,0))
+			screen.blit(lightbaron, (3,400))
 			GPIO.output(lightbarpin, False)
 		else:
-			screen.blit(lightbaroff, (0,0))
+			screen.blit(lightbaroff, (3,400))
 			GPIO.output(lightbarpin, True)
 			
 		'''if hornstate == 1:
@@ -1565,83 +1558,82 @@ while True:
 			GPIO.output(hornpin, True)'''
 			
 		if fuelstate == 16:
-			screen.blit(fuel16, (0,0))
+			screen.blit(fuel16, (642,108))
 		elif fuelstate == 15:
-			screen.blit(fuel15, (0,0))
+			screen.blit(fuel15, (642,108))
 		elif fuelstate == 14:
-			screen.blit(fuel14, (0,0))
+			screen.blit(fuel14, (642,108))
 		elif fuelstate == 13:
-			screen.blit(fuel13, (0,0))
+			screen.blit(fuel13, (642,108))
 		elif fuelstate == 12:
-			screen.blit(fuel12, (0,0))
+			screen.blit(fuel12, (642,108))
 		elif fuelstate == 11:
-			screen.blit(fuel11, (0,0))
+			screen.blit(fuel11, (642,108))
 		elif fuelstate == 10:
-			screen.blit(fuel10, (0,0))
+			screen.blit(fuel10, (642,108))
 		elif fuelstate == 9:
-			screen.blit(fuel9, (0,0))
+			screen.blit(fuel9, (642,108))
 		elif fuelstate == 8:
-			screen.blit(fuel8, (0,0))
+			screen.blit(fuel8, (642,108))
 		elif fuelstate == 7:
-			screen.blit(fuel7, (0,0))
+			screen.blit(fuel7, (642,108))
 		elif fuelstate == 6:
-			screen.blit(fuel6, (0,0))
+			screen.blit(fuel6, (642,108))
 		elif fuelstate == 5:
-			screen.blit(fuel5, (0,0))
+			screen.blit(fuel5, (642,108))
 		elif fuelstate == 4:
-			screen.blit(fuel4, (0,0))
+			screen.blit(fuel4, (642,108))
 		elif fuelstate == 3:
-			screen.blit(fuel3, (0,0))
+			screen.blit(fuel3, (642,108))
 		elif fuelstate == 2:
-			screen.blit(fuel2, (0,0))
+			screen.blit(fuel2, (642,108))
 		elif fuelstate == 1:
-			screen.blit(fuel1, (0,0))
+			screen.blit(fuel1, (642,108))
 			
 		if engine_tempstate == 16:
-			screen.blit(temp16, (0,0))
+			screen.blit(temp16, (95,105))
 		elif engine_tempstate == 15:
-			screen.blit(temp15, (0,0))
+			screen.blit(temp15, (95,105))
 		elif engine_tempstate == 14:
-			screen.blit(temp14, (0,0))
+			screen.blit(temp14, (95,105))
 		elif engine_tempstate == 13:
-			screen.blit(temp13, (0,0))
+			screen.blit(temp13, (95,105))
 		elif engine_tempstate == 12:
-			screen.blit(temp12, (0,0))
+			screen.blit(temp12, (95,105))
 		elif engine_tempstate == 11:
-			screen.blit(temp11, (0,0))
+			screen.blit(temp11, (95,105))
 		elif engine_tempstate == 10:
-			screen.blit(temp10, (0,0))
+			screen.blit(temp10, (95,105))
 		elif engine_tempstate == 9:
-			screen.blit(temp9, (0,0))
+			screen.blit(temp9, (95,105))
 		elif engine_tempstate == 8:
-			screen.blit(temp8, (0,0))
+			screen.blit(temp8, (95,105))
 		elif engine_tempstate == 7:
-			screen.blit(temp7, (0,0))
+			screen.blit(temp7, (95,105))
 		elif engine_tempstate == 6:
-			screen.blit(temp6, (0,0))
+			screen.blit(temp6, (95,105))
 		elif engine_tempstate == 5:
-			screen.blit(temp5, (0,0))
+			screen.blit(temp5, (95,105))
 		elif engine_tempstate == 4:
-			screen.blit(temp4, (0,0))
+			screen.blit(temp4, (95,105))
 		elif engine_tempstate == 3:
-			screen.blit(temp3, (0,0))
+			screen.blit(temp3, (95,105))
 		elif engine_tempstate == 2:
-			screen.blit(temp2, (0,0))
+			screen.blit(temp2, (95,105))
 		elif engine_tempstate == 1:
-			screen.blit(temp1, (0,0))
+			screen.blit(temp1, (95,105))
+		
+		screen.blit(musicbutton, (172,400))	
+		screen.blit(gpsbutton, (552,405))
 			
-		
-		screen.blit(musicbutton, (0,0))	
-		screen.blit(gpsbutton, (0,0))
-		
 		if odo_state == 0:
-			screen.blit(tripometer_texton, (0,0))
+			screen.blit(tripometer_texton, (613,375))
 		
-		
-		if engine_tempstate >= 14:
-			screen.blit(enginetemperature_lighton, (0,0))
+		if engine_tempstate >= 12: #12
+			screen.blit(enginetemperature_lighton, (430,277))
+			
 		if fuelstate <= 2:
-			screen.blit(lowfuel_lighton, (0,0))
+			screen.blit(lowfuel_lighton, (388,275))
 					
 	#------------------------------------------------------------------ Display State = Configuration Page 1-------------------------------------- 
 	if state == "config_page1":	
@@ -1652,14 +1644,15 @@ while True:
 			state = "gauge"
 			save_configuration_txtfile()
 			
+		
 		'''Speed Sensor'''
 		#Display then check if one is clicked
 		if config_speed_sensor_type == "gpsandcv":
-			screen.blit(speed_sensor_gpsandcv, (0,0))
+			screen.blit(speed_sensor_gpsandcv, (327,106))
 		if config_speed_sensor_type == "cv":
-			screen.blit(speed_sensor_cvpickup, (0,0))
+			screen.blit(speed_sensor_cvpickup, (327,106))
 		if config_speed_sensor_type == "gps":
-			screen.blit(speed_sensor_gps, (0,0))
+			screen.blit(speed_sensor_gps, (327,106))
 		if  415 > mousex > 330 and 160 > mousey > 110 and leftmousebutton_up(click[0]): # Back to Gauged
 			config_speed_sensor_type = "gpsandcv"
 		if  508 > mousex > 416 and 160 > mousey > 110 and leftmousebutton_up(click[0]): # Back to Gauged
@@ -1670,9 +1663,9 @@ while True:
 		'''Speed Units'''
 		#Display then check if one is clicked
 		if kmh == 1:
-			screen.blit(speed_units_kmh, (0,0))
+			screen.blit(speed_units_kmh, (328,163))
 		if kmh == 0:
-			screen.blit(speed_units_mph, (0,0))
+			screen.blit(speed_units_mph, (328,163))
 		if  415 > mousex > 330 and 215 > mousey > 165 and leftmousebutton_up(click[0]): # Back to Gauged
 			kmh = 0
 		if  508 > mousex > 416 and 215 > mousey > 165 and leftmousebutton_up(click[0]): # Back to Gauged
@@ -1680,10 +1673,13 @@ while True:
 			
 		'''Air Temperature Units'''
 		#Display then check if one is clicked
+		
 		if degC == 0:
-			screen.blit(air_temp_units_f, (0,0))
+			screen.blit(degree_f_on, (327,222))
+			screen.blit(degree_c_off, (420,222))
 		if degC == 1:
-			screen.blit(air_temp_units_c, (0,0))
+			screen.blit(degree_f_off, (327,222))
+			screen.blit(degree_c_on, (420,222))
 		if  385 > mousex > 330 and 275 > mousey > 225 and leftmousebutton_up(click[0]): # Back to Gauged
 			degC = 0
 		if  475 > mousex > 425 and 275 > mousey > 225 and leftmousebutton_up(click[0]): # Back to Gauged
@@ -1691,17 +1687,20 @@ while True:
 			
 		'''Engine Termperature Units'''
 		if config_engine_temp_units == "f":
-			screen.blit(engine_temperature_units_f, (0,0))
+			screen.blit(degree_f_on, (327,279))
+			screen.blit(degree_c_off, (420,279))
 		if config_engine_temp_units == "c":
-			screen.blit(engine_temperature_units_c, (0,0))
+			screen.blit(degree_f_off, (327,279))
+			screen.blit(degree_c_on, (420,279))
 		if  385 > mousex > 330 and 333 > mousey > 282 and leftmousebutton_up(click[0]): # Engine Temp F button
 			config_engine_temp_units = "f"
 		if  475 > mousex > 425 and 333 > mousey > 282 and leftmousebutton_up(click[0]): # Back to Gauged
 			config_engine_temp_units = "c"
 	
+		
 		'''Metering and Error Log Buttons'''
-		screen.blit(metering, (0,0))
-		screen.blit(errorlog, (0,0))
+		screen.blit(metering, (234,353))
+		screen.blit(errorlog, (448,350))
 		if  353 > mousex > 235 and 424 > mousey > 354 and leftmousebutton_up(click[0]): # Metering Button
 			state = "metering"
 		if  570 > mousex > 452 and 424 > mousey > 354 and leftmousebutton_up(click[0]): # Error Log Button
@@ -1717,30 +1716,32 @@ while True:
 	#------------------------------------------------------------------ Display State = Configuration Page 2-------------------------------------- 			
 	if state == "config_page2":	
 		'''Draw configuration background'''
-		screen.blit(config_bg, (0,0))	
+		screen.blit(config_bg2, (0,0))	
 		
 		if  70 > mousex > 0 and 70 > mousey > 0 and leftmousebutton_up(click[0]): # Back to Gauged
 			state = "gauge"
 			save_configuration_txtfile()
-			
+
 		'''Display Elevation'''
 		#Display then check if one is clicked
 		if config_elevation_units == "feet":
-			screen.blit(elevation_units_feet, (0,0))
+			screen.blit(elevation_units_feet, (328,106))
 		if config_elevation_units == "meters":
-			screen.blit(elevation_units_meters, (0,0))
+			screen.blit(elevation_units_meters, (328,106))
 		if  415 > mousex > 330 and 160 > mousey > 110 and leftmousebutton_up(click[0]): # 
 			config_elevation_units = "feet"
 		if  508 > mousex > 416 and 160 > mousey > 110 and leftmousebutton_up(click[0]): # 
 			config_elevation_units = "meters"
-	
 			
 		'''Elevation Climb'''
 		#Display then check if one is clicked
 		if config_elevation_climb == "on":
 			screen.blit(elevation_climb_on, (0,0))
+			screen.blit(on_on, (327,164))
+			screen.blit(off_off, (420,164))
 		if config_elevation_climb == "off":
-			screen.blit(elevation_climb_off, (0,0))
+			screen.blit(on_off, (327,164))
+			screen.blit(off_on, (420,164))
 		if  385 > mousex > 330 and 215 > mousey > 165 and leftmousebutton_up(click[0]): # on
 			config_elevation_climb = "on"
 		if  475 > mousex > 425 and 215 > mousey > 165 and leftmousebutton_up(click[0]): # off
@@ -1749,9 +1750,11 @@ while True:
 		'''Display Traction'''
 		#Display then check if one is clicked
 		if config_display_traction == "on":
-			screen.blit(display_traction_on, (0,0))
+			screen.blit(on_on, (327,223))
+			screen.blit(off_off, (420,223))
 		if config_display_traction == "off":
-			screen.blit(display_traction_off, (0,0))
+			screen.blit(on_off, (327,223))
+			screen.blit(off_on, (420,223))
 		if  385 > mousex > 330 and 275 > mousey > 225 and leftmousebutton_up(click[0]): # On
 			config_display_traction = "on"
 		if  475 > mousex > 425 and 275 > mousey > 225 and leftmousebutton_up(click[0]): # Off
@@ -1759,9 +1762,9 @@ while True:
 			
 		'''Clock Units'''
 		if config_clock_units == "12h":
-			screen.blit(clock_12h, (0,0))
+			screen.blit(clock_12h, (328,284))
 		if config_clock_units == "24h":
-			screen.blit(clock_24h, (0,0))
+			screen.blit(clock_24h, (328,284))
 		if  411 > mousex > 330 and 333 > mousey > 282 and leftmousebutton_up(click[0]): # 12h
 			config_clock_units = "12h"
 		if  504 > mousex > 425 and 333 > mousey > 282 and leftmousebutton_up(click[0]): # 24h
@@ -1769,9 +1772,11 @@ while True:
 	
 		'''Daylight Savings'''
 		if config_daylight_savings == "on":
-			screen.blit(daylight_savings_on, (0,0))
+			screen.blit(on_on, (327,342))
+			screen.blit(off_off, (420,342))
 		if config_daylight_savings == "off":
-			screen.blit(daylight_savings_off, (0,0))
+			screen.blit(on_off, (327,342))
+			screen.blit(off_on, (420,342))
 		if  385 > mousex > 330 and 395 > mousey > 345 and leftmousebutton_up(click[0]): # On
 			config_daylight_savings = "on"
 		if  475 > mousex > 425 and 395 > mousey > 345 and leftmousebutton_up(click[0]): # Off
@@ -1940,6 +1945,18 @@ while True:
 		
 	
 	#------------------------------------------------------------------ -------------------------------------- 
+	
+	if pi_on_index > 0: #counts up to 40
+		screen.blit(shutdown_countdown, (0,0))
+		if 30 >= pi_on_index > 0:
+			speedtext = font_shutdown_countdown.render(str((40-pi_on_index)/10), 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(right = 430, top = 260) #(right = 450, top = 130)
+			screen.blit(speedtext, speedtext_rect) 
+		if pi_on_index > 30:
+			speedtext = font_shutdown_countdown.render("NOW", 1, (255, 255, 255))
+			speedtext_rect = speedtext.get_rect(right = 520, top = 260) #(right = 450, top = 130)
+			screen.blit(speedtext, speedtext_rect) 
+	
 	#print previous_mouse_click
 	previous_mouse_click = 0
 	if click[0]:
