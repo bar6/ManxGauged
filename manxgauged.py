@@ -286,6 +286,10 @@ config_daylight_savings = "off"
 #ser = serial.Serial ("/dev/ttyAMA0", timeout=0.6) #use this line for raspberry pi 2
 ser = serial.Serial ("/dev/ttyS0", timeout=0.6) #use this line for raspberry pi 3
 ser.baudrate = 57600
+try:
+	ser.flushInput()
+except:
+	print "Error Flushing Serial on boot"
 
 '''Convert images to a format that pygame understands'''
 background = pygame.image.load(path_to_folder+"dashbackground.png").convert_alpha()
@@ -658,6 +662,7 @@ def read_from_arduino():
 	
 def init_send_arduino_odometer():
 	global odometer
+	global ser
 	global odometer_error_flag_from_arduino
 	index = 0
 	
@@ -727,6 +732,7 @@ def update_odometer_trip_txtfile():
 #Function for saving configuratio data to text file
 def save_configuration_txtfile():
 	global config_speed_sensor_type
+	global path_to_folder
 	global kmh
 	global degC
 	global config_engine_temp_units
@@ -760,6 +766,7 @@ def save_configuration_txtfile():
 #Function for reading configuratio data from text file
 def read_configuration_txtfile():
 	global config_speed_sensor_type
+	global path_to_folder
 	global kmh
 	global degC
 	global config_engine_temp_units
@@ -854,6 +861,7 @@ def read_configuration_txtfile():
 	
 def confirm_shutdown():
 	global shutdown_message
+	global ser
 	#ser.write('\n')
 	ser.write("shutdown")
 	ser.write('\n')
@@ -993,14 +1001,17 @@ while True:
 		pi_on_index = 0
 		
 	if pi_on_index > 40:
-		
 		shutdown_in_progress_skip_read_arduino = 1
+		update_odometer_trip_txtfile()
 		#Clear Serial Data first
-		ser.flushInput()
+		try:
+			ser.flushInput()
+		except:
+			print "Error Flushing Serial just before shutdown"
+			
 		print "Waiting for confimation of shutdown from pi"
 		print odometer_arduino
 		print tripometer
-		update_odometer_trip_txtfile()
 		pi_on_index = 0
 		while(1):
 			confirm_shutdown()
